@@ -1,26 +1,75 @@
-import React, { useRef, useEffect, useState, Component } from 'react';
+import React, { useRef, useEffect, useState, useContext, useCallback } from 'react';
+import { Context } from '../pages/_app';
 import maplibregl from 'maplibre-gl';
 const paths = require('../mockData/paths.json');
 const objects = require('../mockData/objects.json');
+
+
+
 export default function Map() {
+
+
+    const [state, dispatch] = useContext(Context)
+
     const mapContainer = useRef(null);
+
     const map = useRef(null);
-    const [lng, setLng] = useState(null);
-    const [lat, setLat] = useState(null);
-    const [pitch, setPitch] = useState(0)
-    const [zoom, setZoom] = useState(2);
     const [API_KEY] = useState(process.env.API_KEY); // api key for map tiles & styles; you can host your own locally, but for now, we'll use an external source
 
     const removeAllLayers = () => {
-        if(map.current.getLayer(lineLayer.id)) map.current.removeLayer(lineLayer.id)
-        if(map.current.getLayer(multiPathLayer.id)) map.current.removeLayer(multiPathLayer.id)
-        if(map.current.getLayer(extrusionPathLayer.id)) map.current.removeLayer(extrusionPathLayer.id)
+        if (map.current.getLayer(lineLayer.id)) map.current.removeLayer(lineLayer.id)
+        if (map.current.getLayer(multiPathLayer.id)) map.current.removeLayer(multiPathLayer.id)
+        if (map.current.getLayer(extrusionPathLayer.id)) map.current.removeLayer(extrusionPathLayer.id)
+    }
+    let hoveredLine = "";
+    let clickedLine = "";
+    let isHovering = false;
+    const handleLineHover = (e) => {
+        isHovering = true;
+        let feature = e.features[0]
+        let coordinates = feature.geometry.coordinates.slice();
+        let properties = feature.properties
+        if (hoveredLine !== properties._id) {
+            hoveredLine = properties.id;
+            dispatch({ type: "SET_HOVERED_LINE_ID", payload: hoveredLine })
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            if(hoveredLine !== clickedLine) {
+
+            map.current.setPaintProperty(
+                multiPathLayer.id,
+                'line-opacity',
+                ["match", ["get", "id"], hoveredLine, 1, clickedLine, 1, 0.25])
+            }
+            //  if(clickedLine) {
+            //      map.current.setPaintProperty(multiPathLayer.id, 'line-opacity', ['match', ['get', 'id'], clickedLine, 1, 0.25])
+            //  }
+        }
     }
 
 
-/**
- * Single Line Data
- */
+
+    const handleLineClick = (e) => {
+        map.current.setFilter(extrusionPathLayer.id, ['==', 'id', hoveredLine])
+        // let properties = feature.properties
+        clickedLine = hoveredLine;
+        dispatch({ type: "SET_CLICKED_LINE_ID", payload: hoveredLine })
+        if(clickedLine !== "") {
+            map.current.setPaintProperty(multiPathLayer.id, 'line-opacity', ['match', ['get', 'id'], hoveredLine, 1, 0.25])
+        }
+        else {
+            map.current.setPaintProperty(multiPathLayer.id, 'line-opacity', 0.5)
+        }
+        // map.current.setPaintProperty(extrusionPathLayer.id, 'fill-extrusion-height', ['match', ['get', 'id'], clickedLine, properties.height, 0])
+    }
+    /**
+     * Single Line Data
+     */
     // data of the single linestring path geometry -- connects all lng,lat data in a single string path
     const [linePathData, setLinePath] = useState({
         'type': 'Feature',
@@ -31,7 +80,7 @@ export default function Map() {
         }
     });
     const getBounds = (coordinates) => {
-        return coordinates.reduce((bounds, coord) => { return bounds.extend(coord)}, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]))
+        return coordinates.reduce((bounds, coord) => { return bounds.extend(coord) }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]))
     }
     // line source
     const [lineSource, setLineSource] = useState({
@@ -57,13 +106,13 @@ export default function Map() {
         }
     })
 
-    
+
     const showLineLayer = () => {
         removeAllLayers()
         map.current.addLayer(lineLayer);
         const coordinates = linePathData.geometry.coordinates
         const bounds = getBounds(coordinates);
-        map.current.fitBounds(bounds, {padding: 20, pitch: 0})
+        map.current.fitBounds(bounds, { padding: 20, pitch: 0 })
     }
     const removeLineLayer = () => {
         map.current.removeLayer(lineLayer)
@@ -77,7 +126,7 @@ export default function Map() {
     })
 
     const [multiPathSource, setMultiPathSource] = useState({
-        name: 'multiPathSource', 
+        name: 'multiPathSource',
         data: {
             type: 'geojson',
             data: multiPathData
@@ -98,17 +147,18 @@ export default function Map() {
         // removeAllLayers()
         const coordinates = linePathData.geometry.coordinates
         const bounds = getBounds(coordinates);
-        map.current.fitBounds(bounds, {padding: 20, pitch: 20})
+        map.current.fitBounds(bounds, { padding: 20, pitch: 20 })
         map.current.addLayer(multiPathLayer)
         map.current.addLayer(extrusionPathLayer)
+        map.current.setFilter(extrusionPathLayer.id, ['==', 'id', 'none'])
 
     }
 
 
 
-/**
- * Single Line Extrusion Data Data
- */
+    /**
+     * Single Line Extrusion Data Data
+     */
     // extrusion collection -- contains an array of extrusion geometries
     const [extrusionPathData, setExtrusionPathData] = useState({
         'type': 'FeatureCollection',
@@ -120,7 +170,7 @@ export default function Map() {
         name: 'extrusionPathSource',
         data: {
             type: 'geojson',
-            data: extrusionPathData  
+            data: extrusionPathData
         }
     })
 
@@ -133,10 +183,10 @@ export default function Map() {
         'paint': {
             'fill-extrusion-color': '#fc1',
             'fill-extrusion-opacity': 0.5,
-            'fill-extrusion-height': 0,
-            'fill-extrusion-base':0,
+            'fill-extrusion-height': ['get', 'height'],
+            'fill-extrusion-base': 0,
             // 'fill-extrusion-vertical-gradient': true
-            
+
         }
     })
 
@@ -146,10 +196,9 @@ export default function Map() {
         const bounds = getBounds(coordinates);
         const newPitch = 60
         map.current.addLayer(extrusionPathLayer);
-        map.current.fitBounds(bounds, {padding: 20, pitch: newPitch})
-        setPitch(newPitch)
-        // console.log(map.current)
-        
+        map.current.fitBounds(bounds, { padding: 20, pitch: newPitch })
+        // setPitch(newPitch)
+
     }
     const removeExtrusionLayer = () => {
         map.current.removeLayer(lineLayer)
@@ -160,16 +209,21 @@ export default function Map() {
         map.current = new maplibregl.Map({
             container: mapContainer.current,
             style: `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=${API_KEY}`,
-            center: [lng, lat],
-            zoom: zoom,
+            center: [state.lng, state.lat],
+            zoom: state.zoom,
             attributionControl: false,
             // pitch
         });
 
         map.current.on('moveend', (e) => {
             const center = map.current.getCenter()
-            setLat(center.lat);
-            setLng(center.lng);
+            dispatch({
+                type: "SET_LNG_LAT",
+                payload: {
+                    lat: center.lat,
+                    lng: center.lng
+                }
+            })
         })
         map.current.on('load', () => {
 
@@ -192,10 +246,10 @@ export default function Map() {
                 const lastCoordinate = lastPathCoordinateGroup ? lastPathCoordinateGroup[lastPathCoordinateGroup.length - 1] : null
                 const nextCoordinate = i < paths.length - 2 ? paths[i + 1].coordinates[0] : null
                 pathCoordinates.push(coordinates)
-                if(lastCoordinate) {
+                if (lastCoordinate) {
                     extrusionCoordinates.unshift(lastCoordinate)
                 }
-                if(nextCoordinate) {
+                if (nextCoordinate) {
                     extrusionCoordinates.push(nextCoordinate)
                 }
 
@@ -214,7 +268,6 @@ export default function Map() {
                         'min-height': 0,
                     }
                 }
-                console.log(id, multiPathFeature)
                 let altitudeFeature = {
                     "type": 'Feature',
                     "id": path.id,
@@ -222,12 +275,12 @@ export default function Map() {
                         type: 'MultiLineString',
                         coordinates: [extrusionCoordinates]
                     },
-                    style: { "stroke-width":"3"},
+                    style: { "stroke-width": "3" },
                     properties: {
                         "id": path.id,
                         "altitude": `${path.altitude}ft`,
                         height: path.altitude,
-                        'min-height': path.altitude-10,
+                        'min-height': path.altitude - 10,
                     }
                 }
                 multiPathData.features.push(multiPathFeature)
@@ -240,38 +293,19 @@ export default function Map() {
             map.current.getSource(lineSource.name).setData(linePathData)
 
             // add line-hover action
-            map.current.on('mouseenter', multiPathLayer.id, (e) => {
-                console.log(e)
-                let feature = e.features[0]
-                let coordinates = feature.geometry.coordinates.slice();
-                let properties = feature.properties
-
-                // Ensure that if the map is zoomed out such that multiple
-                // copies of the feature are visible, the popup appears
-                // over the copy being pointed to.
-                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                }
-                map.current.setPaintProperty(multiPathLayer.id, 'line-opacity', ['match', ['get', 'id'], properties.id, 1, 0.25])
-                console.log(feature)
-            });
+            map.current.on('mouseenter', multiPathLayer.id, handleLineHover);
             // add click event
-            map.current.on('click', multiPathLayer.id, (e) => {
-                let feature = e.features[0]
-                let properties = feature.properties
-                map.current.setPaintProperty(multiPathLayer.id, 'line-opacity', ['match', ['get', 'id'], properties.id, 1, 0.25])
-                map.current.setPaintProperty(extrusionPathLayer.id, 'fill-extrusion-height', ['match', ['get', 'id'], properties.id, properties.height, 0])
-            })
+            map.current.on('click', handleLineClick)
             // reset on doubleclick
-            map.current.on('dblclick', () =>{
+            map.current.on('dblclick', () => {
                 map.current.setPaintProperty(multiPathLayer.id, 'line-opacity', 0.5)
             })
-            
+
         })
 
-    });
+    }, [map]);
 
-    
+
 
     return (
         <div className="w-full h-full absolute">
@@ -280,13 +314,11 @@ export default function Map() {
                 <button>Menu</button>
             </div>
             <div className="w-25 h-25 bg-slate absolute bottom-0 left-0 z-10">
-                <p>Lat: {lat}</p>
-                <p>Lng: {lng}</p>
+                <p>Lat: {state.lat}</p>
+                <p>Lng: {state.lng}</p>
             </div>
             <div className="w-[250px] h-full bg-[rgba(0,0,0,0.5)] p-4 top-[55px] z-0 left-0 fixed text-white">
-                {/* <button onClick={showLineLayer}>Show Path</button><br></br> */}
                 <button onClick={showMultiPathLayer}>Show Path</button><br></br>
-                {/* <button onClick={showExtrusionLayer}>Show Altitude</button> */}
             </div>
         </div>
     )
