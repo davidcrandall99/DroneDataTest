@@ -23,9 +23,7 @@ export default function Map() {
     }
     let hoveredLine = "";
     let clickedLine = "";
-    let isHovering = false;
     const handleLineHover = (e) => {
-        isHovering = true;
         let feature = e.features[0]
         let coordinates = feature.geometry.coordinates.slice();
         let properties = feature.properties
