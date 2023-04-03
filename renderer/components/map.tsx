@@ -23,7 +23,7 @@ export default function Map() {
 
     const showPath = () => {
         if(setPaths !== null) {
-            paths.showLayer()
+            paths.showLayer(30)
         }
     }
 
