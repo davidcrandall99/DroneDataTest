@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useContext, useCallback } from 'rea
 import { Context } from '../pages/_app';
 import { PathGroup } from './path';
 import maplibregl from 'maplibre-gl';
+import { ObjectPolygon } from './objectPolygon';
 const pathsData = require('../mockData/paths.json');
 const objectsData = require('../mockData/objects.json');
 
@@ -20,10 +21,14 @@ export default function Map() {
     }
 
     const [paths, setPaths] = useState(null)
+    const [objects, setObjects] = useState(null)
 
     const showPath = () => {
         if(setPaths !== null) {
             paths.showLayer(30)
+        }
+        if(setObjects !== null) {
+            objects.showLayer(30)
         }
     }
 
@@ -50,6 +55,7 @@ export default function Map() {
         })
         map.current.on('load', () => {
             setPaths(new PathGroup(map.current, 'pathGroup', pathsData))
+            setObjects(new ObjectPolygon(map.current, 'objectGroup', objectsData))
         })
 
     }, [paths]);

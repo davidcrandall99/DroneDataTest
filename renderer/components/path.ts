@@ -1,4 +1,3 @@
-import maplibregl from "maplibre-gl";
 import bbox from '@turf/bbox';
 import { ExtrusionLayer } from "./extrusion";
 export class PathGroup {
@@ -85,7 +84,7 @@ export class PathGroup {
           id: path.id,
           altitude: `${path.altitude}ft`,
           height: path.altitude,
-          "min-height": 0,
+          "min-height": path.altitude - 100,
         },
       };
 
@@ -144,7 +143,6 @@ export class PathGroup {
           1,
           0.25,
         ]);
-        console.log(this.clickedLine);
         this.extrusion.updateCoordinates(
           this.clickedLine,
           this.clickedLine.properties.id

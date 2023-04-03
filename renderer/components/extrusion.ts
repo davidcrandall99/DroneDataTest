@@ -35,7 +35,7 @@ export class ExtrusionLayer {
                 'fill-extrusion-color': '#fc1',
                 'fill-extrusion-opacity': 0.5,
                 'fill-extrusion-height': ['get', 'height'],
-                'fill-extrusion-base': 0,
+                'fill-extrusion-base': ['get', 'min-height'],
                 // 'fill-extrusion-vertical-gradient': true
     
             }
@@ -43,13 +43,11 @@ export class ExtrusionLayer {
         this.map.addSource(this.source.name, this.source.data)
     }
     updateCoordinates(pathData, id) {
-        console.log(pathData)
         this.pathData = pathData;
         this.map.getSource(this.source.name).setData(this.pathData)
     }
     addLayer() {
         if(this.map.getLayer(this.layer.id)) {
-            console.log('layer exists')
             return;
         }
         if(!this.map.getSource(this.source.name)) {
