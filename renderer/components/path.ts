@@ -1,4 +1,7 @@
-import bbox from '@turf/bbox';
+import bbox from "@turf/bbox";
+import distance from "@turf/distance";
+import pointOnFeature from "@turf/point-on-feature";
+import maplibregl from "maplibre-gl";
 import { ExtrusionLayer } from "./extrusion";
 export class PathGroup {
   pathData;
@@ -12,6 +15,7 @@ export class PathGroup {
   extrusion;
   data;
   boundingBox;
+  tooltip;
 
   constructor(map, name, data) {
     this.map = map;
@@ -43,7 +47,8 @@ export class PathGroup {
     this.clickedLine = null;
     this.extrusion = new ExtrusionLayer(map, `${name}Extrusion`);
     this.setPathsFromData(data);
-    this.boundingBox = bbox(this.pathData)
+    this.boundingBox = bbox(this.pathData);
+    this.tooltip = null;
   }
   addSourceToMap() {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
@@ -91,9 +96,29 @@ export class PathGroup {
       this.pathData.features.push(multiPathFeature);
       this.map.getSource(this.pathSource.name).setData(this.pathData);
     }
-
   }
   createMapEvents() {
+    this.map.on("mousemove", (e) => {
+      if (this.hoveredLine) {
+        let hoveredLngLat = [e.lngLat.lng, e.lngLat.lat];
+        let hoveredPoint = pointOnFeature(this.hoveredLine);
+        let distanceFrom = distance(hoveredLngLat, hoveredPoint);
+        if (distanceFrom >= 2) {
+          this.hoveredLine = null
+          if (!this.clickedLine) {
+            this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
+          } else {
+            this.map.setPaintProperty(this.pathLayer.id, "line-opacity", [
+              "match",
+              ["get", "id"],
+              this.clickedLine.properties.id,
+              1,
+              0.25,
+            ]);
+          }
+        }
+      }
+    });
     this.map.on("mouseenter", this.pathLayer.id, (e) => {
       let feature = e.features[0];
       let coordinates = feature.geometry.coordinates.slice();
@@ -133,7 +158,20 @@ export class PathGroup {
         }
       }
     });
-    this.map.on("click", () => {
+    this.map.on("click", (e) => {
+      if (this.hoveredLine) {
+        let clickedLngLat = [e.lngLat.lng, e.lngLat.lat];
+        let hoveredPoint = pointOnFeature(this.hoveredLine);
+        let distanceFromClick = distance(clickedLngLat, hoveredPoint);
+        if (distanceFromClick >= 2) {
+          this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
+          this.clickedLine = null;
+          this.hoveredLine = null;
+          this.removeExtrusion();
+          this.removeToolTip();
+          return;
+        }
+      }
       this.clickedLine = this.hoveredLine;
       if (this.clickedLine) {
         this.map.setPaintProperty(this.pathLayer.id, "line-opacity", [
@@ -148,16 +186,46 @@ export class PathGroup {
           this.clickedLine.properties.id
         );
         this.extrusion.addLayer();
+        this.addToolTip(this.clickedLine);
       } else {
         this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
       }
     });
   }
-  showLayer(pitch = 0, padding = 40) {
-    if(!this.map.getLayer(this.pathLayer.id)) {
-        this.map.addLayer(this.pathLayer);
-        this.createMapEvents();
+  addToolTip(line) {
+    let coordinates = line.geometry.coordinates;
+    let properties = line.properties;
+    if (!this.tooltip) {
+      this.tooltip = new maplibregl.Popup({
+        closeButton: true,
+        closeOnClick: false,
+      });
     }
-    this.map.fitBounds(this.boundingBox, { padding, pitch })
+    // find the middle coordinate
+    let middle =
+      coordinates.flat()[0] == 2
+        ? coordinates.flat().slice(Math.ceil(coordinates.length / 2))[0]
+        : coordinates.slice(Math.ceil(coordinates.length / 2))[0];
+    let html = `
+        <p>
+            <b>Drone ID:</b> ${properties.id}<br>
+            <b>Altitude:</b> ${properties.altitude}
+        </p>
+    `;
+    this.tooltip.setLngLat(middle).setHTML(html).addTo(this.map);
+  }
+  removeToolTip() {
+    if (this.tooltip) this.tooltip.remove();
+  }
+  removeExtrusion() {
+    if (this.map.getLayer(this.extrusion.layer.id))
+      this.map.removeLayer(this.extrusion.layer.id);
+  }
+  showLayer(pitch = 0, padding = 40) {
+    if (!this.map.getLayer(this.pathLayer.id)) {
+      this.map.addLayer(this.pathLayer);
+      this.createMapEvents();
+    }
+    this.map.fitBounds(this.boundingBox, { padding, pitch });
   }
 }

@@ -11,6 +11,7 @@ export class ObjectPolygon {
     hoveredObject;
     clickedObject;
     boundingBox;
+    tooltip;
 
     constructor(map, name, data) {
         this.map = map;
@@ -43,6 +44,7 @@ export class ObjectPolygon {
         this.map.addSource(this.objectSource.name, this.objectSource.data)
         this.setObjectsFromData(data)
         this.boundingBox = bbox(this.objectData)
+        this.tooltip = {}
     }
     setObjectsFromData(data) {
         for (let i = 0; i in data; i++) {

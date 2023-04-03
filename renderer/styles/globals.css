@@ -16,7 +16,12 @@
   }
 }
 .maplibregl-popup {
-  max-width: 400px;
-  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  @apply text-slate-100;
+  max-width: 400px !important;
+  @apply text-slate-900 opacity-60 hover:opacity-100;
+}
+.maplibregl-popup-content {
+  @apply p-5;
+}
+.mapboxgl-popup-close-button {
+  @apply top-0 right-2 text-xl;
 }
