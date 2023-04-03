@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@turf/bbox": "^6.5.0",
+    "@turf/distance": "^6.5.0",
+    "@turf/point-on-feature": "^6.5.0",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
     "maplibre-gl": "^2.4.0"
