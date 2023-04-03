@@ -105,6 +105,7 @@ export class PathGroup {
         let distanceFrom = distance(hoveredLngLat, hoveredPoint);
         if (distanceFrom >= 2) {
           this.hoveredLine = null
+          this.map.getCanvas().style.cursor = ''
           if (!this.clickedLine) {
             this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
           } else {
@@ -122,6 +123,7 @@ export class PathGroup {
     this.map.on("mouseenter", this.pathLayer.id, (e) => {
       let feature = e.features[0];
       let coordinates = feature.geometry.coordinates.slice();
+      this.map.getCanvas().style.cursor = 'pointer';
       let properties = feature.properties;
       if (
         !this.hoveredLine ||
@@ -159,10 +161,14 @@ export class PathGroup {
       }
     });
     this.map.on("click", (e) => {
-      if (this.hoveredLine) {
+      if(this.hoveredLine) {
+        this.clickedLine = this.hoveredLine;
+      }
+      if (this.clickedLine) {
+
         let clickedLngLat = [e.lngLat.lng, e.lngLat.lat];
-        let hoveredPoint = pointOnFeature(this.hoveredLine);
-        let distanceFromClick = distance(clickedLngLat, hoveredPoint);
+        let linePoint = pointOnFeature(this.clickedLine);
+        let distanceFromClick = distance(clickedLngLat, linePoint);
         if (distanceFromClick >= 2) {
           this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
           this.clickedLine = null;
@@ -171,9 +177,7 @@ export class PathGroup {
           this.removeToolTip();
           return;
         }
-      }
-      this.clickedLine = this.hoveredLine;
-      if (this.clickedLine) {
+
         this.map.setPaintProperty(this.pathLayer.id, "line-opacity", [
           "match",
           ["get", "id"],
