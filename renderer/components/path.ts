@@ -18,8 +18,12 @@ export class PathGroup {
   boundingBox;
   tooltip;
   linestrings;
+  dispatch;
+  state;
 
-  constructor(map, name, data) {
+  constructor(map, name, data, getStateFunction, dispatch) {
+    this.dispatch = dispatch;
+    this.state = getStateFunction;
     this.map = map;
     this.name = name;
     this.data = data;
@@ -127,7 +131,6 @@ export class PathGroup {
       }
     });
     this.map.on("click", (e) => {
-      console.log(e)
       if(this.hoveredLine) {
         this.clickedLine = this.hoveredLine;
       }

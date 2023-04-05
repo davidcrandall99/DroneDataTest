@@ -17,7 +17,9 @@ export default function Map() {
     const [API_KEY] = useState(process.env.API_KEY); // api key for map tiles & styles; you can host your own locally, but for now, we'll use an external source
 
 
-
+    const getStateFunction = useCallback(() => {
+      return state
+    }, [state])
     const showPath = () => {
 
         for(let path in state.paths) {
@@ -40,7 +42,7 @@ export default function Map() {
           type: 'ADD_DRONE_PATH',
           payload: {
             id,
-            path: new PathGroup(map.current, id, pathsData)
+            path: new PathGroup(map.current, id, pathsData, getStateFunction, dispatch)
           }
         })
       }
@@ -52,7 +54,7 @@ export default function Map() {
           type: 'ADD_OBJECT_GROUP',
           payload: {
             id,
-            objectGroup: new ObjectPolygon(map.current, id, objectsData)
+            objectGroup: new ObjectPolygon(map.current, id, objectsData, getStateFunction, dispatch)
           }
         })
       }
@@ -112,6 +114,12 @@ export default function Map() {
             <div className="w-[250px] h-full bg-[rgba(0,0,0,0.5)] p-4 top-[55px] z-0 left-0 fixed text-white">
                 {Object.keys(state.paths).length > 0 &&
                     <button onClick={showPath}>Show Path</button>
+                }
+                {state.selectedObject &&
+                  <p><b>ID:</b>{state.selectedObject.properties.id}<br></br>
+                  <b>Object Height:{state.selectedObject.properties.height}</b>
+                  <b>Object Type:{state.selectedObject.geometry.type}</b>
+                  </p>
                 }
             </div>
         </div>

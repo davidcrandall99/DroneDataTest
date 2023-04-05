@@ -14,8 +14,12 @@ export class ObjectPolygon {
     clickedObject;
     boundingBox;
     tooltip;
+    dispatch;
+    state;
 
-    constructor(map, name, data) {
+    constructor(map, name, data, getStateFunction, dispatch) {
+        this.dispatch = dispatch;
+        this.state = getStateFunction;
         this.map = map;
         this.data = data;
         this.objectCoordinates = [];
@@ -79,9 +83,12 @@ export class ObjectPolygon {
 
     createMapEvents() {
         this.map.on("click", this.objectLayer.id, (e) => {
-            console.log(e.features)
             const feature = e.features[0];
             this.addToolTip(feature)
+            this.dispatch({
+                type:"SET_CLICKED_OBJECT",
+                payload: feature
+            })
         })
     }
 

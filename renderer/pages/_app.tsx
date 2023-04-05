@@ -24,7 +24,8 @@ const initialState:any = {
   pathData: null,
   objectData: null,
   paths: {},
-  objects: {}
+  objects: {},
+  selectedObject: null
 }
 
 const Reducer = (state, action) => {
@@ -53,6 +54,9 @@ const Reducer = (state, action) => {
     case "GET_OBJECT_DATA":
       newState.objectData = objectData
       return newState;
+    case "SET_CLICKED_OBJECT":
+      newState.selectedObject = payload;
+      return newState
     default:
       return state;
   }
