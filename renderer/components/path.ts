@@ -1,4 +1,5 @@
 import bbox from "@turf/bbox";
+import * as turf from "@turf/helpers";
 import distance from "@turf/distance";
 import pointOnFeature from "@turf/point-on-feature";
 import maplibregl from "maplibre-gl";
@@ -16,16 +17,24 @@ export class PathGroup {
   data;
   boundingBox;
   tooltip;
+  linestrings;
 
   constructor(map, name, data) {
     this.map = map;
     this.name = name;
     this.data = data;
     this.pathCoordinates = [];
-    this.pathData = {
-      type: "FeatureCollection",
-      features: [],
-    };
+    this.linestrings = [];
+
+    for (let i = 0; i in data; i++) {
+        let path = data[i]; // the single path object
+        // multiline string
+        let linestring = turf.lineString(path.coordinates, {id: path.id, altitude: `${path.altitude}ft`, height: path.altitude,  "min-height": path.altitude - 100 })
+        this.linestrings.push(linestring)
+    }
+    
+    this.pathData = turf.featureCollection(this.linestrings, {id: '123'}),
+
     this.pathSource = {
       name: `${name}Source`,
       data: {
@@ -40,62 +49,19 @@ export class PathGroup {
       paint: {
         "line-color": "green",
         "line-opacity": 0.5,
-        "line-width": 2,
+        "line-width": 1,
       },
     };
     this.hoveredLine = null;
     this.clickedLine = null;
     this.extrusion = new ExtrusionLayer(map, `${name}Extrusion`);
-    this.setPathsFromData(data);
+    // this.setPathsFromData(data);
     this.boundingBox = bbox(this.pathData);
+    this.addSourceToMap();
     this.tooltip = null;
   }
   addSourceToMap() {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
-  }
-  setPathsFromData(data) {
-    this.addSourceToMap();
-    for (let i = 0; i in data; i++) {
-      let path = data[i]; // the single path object
-      let coordinates = [...path.coordinates]; // the coordinates
-      let extrusionCoordinates = [...path.coordinates]; // the coordinates
-
-      // get the last and next paths to connect extrusions
-      const lastPathCoordinateGroup =
-        this.pathCoordinates.length > 0
-          ? this.pathCoordinates[this.pathCoordinates.length - 1]
-          : null;
-      const lastCoordinate = lastPathCoordinateGroup
-        ? lastPathCoordinateGroup[lastPathCoordinateGroup.length - 1]
-        : null;
-      const nextCoordinate =
-        i < data.length - 2 ? data[i + 1].coordinates[0] : null;
-      this.pathCoordinates.push(coordinates);
-      if (lastCoordinate) {
-        extrusionCoordinates.unshift(lastCoordinate);
-      }
-      if (nextCoordinate) {
-        extrusionCoordinates.push(nextCoordinate);
-      }
-
-      let multiPathFeature = {
-        type: "Feature",
-        id: path.id,
-        geometry: {
-          type: "MultiLineString",
-          coordinates: [coordinates],
-        },
-        properties: {
-          id: path.id,
-          altitude: `${path.altitude}ft`,
-          height: path.altitude,
-          "min-height": path.altitude - 100,
-        },
-      };
-
-      this.pathData.features.push(multiPathFeature);
-      this.map.getSource(this.pathSource.name).setData(this.pathData);
-    }
   }
   createMapEvents() {
     this.map.on("mousemove", (e) => {
@@ -212,7 +178,7 @@ export class PathGroup {
         : coordinates.slice(Math.ceil(coordinates.length / 2))[0];
     let html = `
         <p>
-            <b>Drone ID:</b> ${properties.id}<br>
+            <b>Path ID:</b> ${properties.id}<br>
             <b>Altitude:</b> ${properties.altitude}
         </p>
     `;
@@ -227,9 +193,11 @@ export class PathGroup {
   }
   showLayer(pitch = 0, padding = 40) {
     if (!this.map.getLayer(this.pathLayer.id)) {
+      console.log('showLayer')
+      console.log(this.pathLayer)
       this.map.addLayer(this.pathLayer);
       this.createMapEvents();
     }
-    this.map.fitBounds(this.boundingBox, { padding, pitch });
+    // this.map.fitBounds(this.boundingBox, { padding, pitch });
   }
 }
