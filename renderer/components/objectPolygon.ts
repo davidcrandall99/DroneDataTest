@@ -1,4 +1,6 @@
+import maplibregl from 'maplibre-gl';
 import bbox from '@turf/bbox';
+import pointOnFeature from "@turf/point-on-feature";
 
 export class ObjectPolygon {
     data;
@@ -44,7 +46,8 @@ export class ObjectPolygon {
         this.map.addSource(this.objectSource.name, this.objectSource.data)
         this.setObjectsFromData(data)
         this.boundingBox = bbox(this.objectData)
-        this.tooltip = {}
+        this.tooltip = null;
+        this.createMapEvents()
     }
     setObjectsFromData(data) {
         for (let i = 0; i in data; i++) {
@@ -71,6 +74,34 @@ export class ObjectPolygon {
         }
         if(fitBounds) {
             this.map.fitBounds(this.boundingBox, { padding, pitch })
+        }
+    }
+
+    createMapEvents() {
+        this.map.on("click", this.objectLayer.id, (e) => {
+            console.log(e.features)
+            const feature = e.features[0];
+            this.addToolTip(feature)
+        })
+    }
+
+    addToolTip(feature) {
+        const point = pointOnFeature(feature);
+        const properties = feature.properties;
+        if (!this.tooltip) {
+            this.tooltip = new maplibregl.Popup({
+                closeButton: true,
+                closeOnClick: false,
+            });
+        }
+        let html = `
+            <p>
+                <b>Object ID:</b> ${properties.id}<br>
+                <b>Altitude:</b> ${properties.height}
+            </p>
+        `;
+        if(point.geometry.coordinates.length == 2) {
+            this.tooltip.setLngLat(point.geometry.coordinates).setHTML(html).addTo(this.map)
         }
     }
 }

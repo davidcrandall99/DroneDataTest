@@ -127,6 +127,7 @@ export class PathGroup {
       }
     });
     this.map.on("click", (e) => {
+      console.log(e)
       if(this.hoveredLine) {
         this.clickedLine = this.hoveredLine;
       }
@@ -163,7 +164,6 @@ export class PathGroup {
     });
   }
   addToolTip(line) {
-    let coordinates = line.geometry.coordinates;
     let properties = line.properties;
     if (!this.tooltip) {
       this.tooltip = new maplibregl.Popup({
@@ -172,17 +172,14 @@ export class PathGroup {
       });
     }
     // find the middle coordinate
-    let middle =
-      coordinates.flat()[0] == 2
-        ? coordinates.flat().slice(Math.ceil(coordinates.length / 2))[0]
-        : coordinates.slice(Math.ceil(coordinates.length / 2))[0];
+    let middle = pointOnFeature(line)
     let html = `
         <p>
             <b>Path ID:</b> ${properties.id}<br>
             <b>Altitude:</b> ${properties.altitude}
         </p>
     `;
-    this.tooltip.setLngLat(middle).setHTML(html).addTo(this.map);
+    this.tooltip.setLngLat(middle.geometry.coordinates).setHTML(html).addTo(this.map);
   }
   removeToolTip() {
     if (this.tooltip) this.tooltip.remove();
@@ -193,8 +190,6 @@ export class PathGroup {
   }
   showLayer(pitch = 0, padding = 40) {
     if (!this.map.getLayer(this.pathLayer.id)) {
-      console.log('showLayer')
-      console.log(this.pathLayer)
       this.map.addLayer(this.pathLayer);
       this.createMapEvents();
     }
