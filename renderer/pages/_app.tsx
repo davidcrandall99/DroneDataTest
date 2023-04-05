@@ -1,6 +1,7 @@
 import React, { createContext, useReducer } from 'react';
 import type { AppProps } from 'next/app';
-
+const pathData = require('../mockData/paths.json');
+const objectData = require('../mockData/objects.json');
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -20,7 +21,10 @@ const initialState:any = {
   zoom: null,
   clickedLineId: null,
   hoveredLineId: null,
-  activeMapLayers: [],
+  pathData: null,
+  objectData: null,
+  paths: {},
+  objects: {}
 }
 
 const Reducer = (state, action) => {
@@ -36,6 +40,18 @@ const Reducer = (state, action) => {
       return newState;
     case "SET_HOVERED_LINE_ID":
       newState.hoveredLineId = payload
+      return newState;
+    case "ADD_DRONE_PATH":
+      newState.paths[payload.id] = payload.path
+      return newState
+    case "ADD_OBJECT_GROUP":
+      newState.objects[payload.id] = payload.objectGroup
+      return newState
+    case "GET_PATH_DATA":
+      newState.pathData = pathData
+      return newState;
+    case "GET_OBJECT_DATA":
+      newState.objectData = objectData
       return newState;
     default:
       return state;

@@ -32,7 +32,7 @@ export class PathGroup {
         let linestring = turf.lineString(path.coordinates, {id: path.id, altitude: `${path.altitude}ft`, height: path.altitude,  "min-height": path.altitude - 100 })
         this.linestrings.push(linestring)
     }
-    
+
     this.pathData = turf.featureCollection(this.linestrings, {id: '123'}),
 
     this.pathSource = {
@@ -198,6 +198,6 @@ export class PathGroup {
       this.map.addLayer(this.pathLayer);
       this.createMapEvents();
     }
-    // this.map.fitBounds(this.boundingBox, { padding, pitch });
+    this.map.fitBounds(this.boundingBox, { padding, pitch });
   }
 }
