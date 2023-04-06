@@ -24,7 +24,7 @@ const initialState:any = {
   pathData: null,
   objectData: null,
   paths: {},
-  objects: {},
+  objects: null,
   selectedObject: null
 }
 
@@ -46,8 +46,20 @@ const Reducer = (state, action) => {
       newState.paths[payload.id] = payload.path
       return newState
     case "ADD_OBJECT_GROUP":
-      newState.objects[payload.id] = payload.objectGroup
-      return newState
+      newState.objects = payload
+      console.log('set objects')
+      console.log(newState.objects)
+      return newState;
+    case "SHOW_OBJECT_LAYER":
+      if(payload) {
+        newState.objects.showObjectsNearPoint(payload)
+      } else {
+        newState.objects.showLayer()
+      }
+      return newState;
+    case "HIDE_OBJECT_LAYER":
+        newState.objects.removeObjects()
+        return newState;
     case "GET_PATH_DATA":
       newState.pathData = pathData
       return newState;

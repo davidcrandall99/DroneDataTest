@@ -1,6 +1,9 @@
 import maplibregl from 'maplibre-gl';
 import bbox from '@turf/bbox';
 import pointOnFeature from "@turf/point-on-feature";
+import * as turf from "@turf/helpers";
+import distance from "@turf/distance";
+
 
 export class ObjectPolygon {
     data;
@@ -22,6 +25,7 @@ export class ObjectPolygon {
         this.state = getStateFunction;
         this.map = map;
         this.data = data;
+        this.boundingBox  = null;
         this.objectCoordinates = [];
         this.objectData = {
             type: "FeatureCollection",
@@ -49,11 +53,11 @@ export class ObjectPolygon {
         this.clickedObject = null;
         this.map.addSource(this.objectSource.name, this.objectSource.data)
         this.setObjectsFromData(data)
-        this.boundingBox = bbox(this.objectData)
         this.tooltip = null;
         this.createMapEvents()
     }
     setObjectsFromData(data) {
+        this.objectData.features = []
         for (let i = 0; i in data; i++) {
             let object = data[i]
             let polygon = {
@@ -71,6 +75,7 @@ export class ObjectPolygon {
             this.objectData.features.push(polygon)
         }
         this.map.getSource(this.objectSource.name).setData(this.objectData)
+        this.boundingBox = bbox(this.objectData)
     }
     showLayer(fitBounds = false, pitch = 0, padding = 40) {
         if(!this.map.getLayer(this.objectLayer.id)) {
@@ -79,6 +84,27 @@ export class ObjectPolygon {
         if(fitBounds) {
             this.map.fitBounds(this.boundingBox, { padding, pitch })
         }
+    }
+    showAllObjects(){
+        this.setObjectsFromData(this.data)
+        this.showLayer()
+    }
+    removeObjects(){
+        this.map.removeLayer(this.objectLayer)
+    }
+    showObjectsNearPoint(point) {
+        const objectsNearPoint = []
+        for(let i = 0; i in this.data; i++) {
+            let object = this.data[i]
+            let polygon = turf.polygon(object.coordinates)
+            let polygonPoint = pointOnFeature(polygon)
+            let distanceFrom = distance(polygonPoint, point)
+            if (distanceFrom < 2) {
+                objectsNearPoint.push(object)
+            }
+        }
+        this.setObjectsFromData(objectsNearPoint)
+        this.showLayer(true, 30)
     }
 
     createMapEvents() {

@@ -3,6 +3,7 @@ import * as turf from "@turf/helpers";
 import distance from "@turf/distance";
 import pointOnFeature from "@turf/point-on-feature";
 import maplibregl from "maplibre-gl";
+import { ObjectPolygon } from "./objectPolygon";
 import { ExtrusionLayer } from "./extrusion";
 export class PathGroup {
   pathData;
@@ -22,6 +23,7 @@ export class PathGroup {
   state;
 
   constructor(map, name, data, getStateFunction, dispatch) {
+    console.log({getStateFunction, dispatch})
     this.dispatch = dispatch;
     this.state = getStateFunction;
     this.map = map;
@@ -66,6 +68,15 @@ export class PathGroup {
   }
   addSourceToMap() {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
+  }
+  getObjectsNearPoint() {
+    const line = this.clickedLine ? this.clickedLine : turf.lineString(this.pathData);
+    const point = pointOnFeature(line);
+    this.dispatch({
+      type: "SHOW_OBJECT_LAYER",
+      payload: point
+    })
+  
   }
   createMapEvents() {
     this.map.on("mousemove", (e) => {
@@ -179,10 +190,12 @@ export class PathGroup {
     let html = `
         <p>
             <b>Path ID:</b> ${properties.id}<br>
-            <b>Altitude:</b> ${properties.altitude}
+            <b>Altitude:</b> ${properties.altitude}<br>
+            <button id="tooltipBtn">Show Nearby Objects</button>
         </p>
     `;
     this.tooltip.setLngLat(middle.geometry.coordinates).setHTML(html).addTo(this.map);
+    document.getElementById("tooltipBtn").onclick =() =>{ this.getObjectsNearPoint() }
   }
   removeToolTip() {
     if (this.tooltip) this.tooltip.remove();

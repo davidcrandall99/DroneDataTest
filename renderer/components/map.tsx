@@ -21,18 +21,18 @@ export default function Map() {
       return state
     }, [state])
     const showPath = () => {
-
+        // ideally, we'd dispatch a function to get paths within a bounding box
+        // if we have a full-globe view, we could get clusters
+        // it would be nice to query sqlite or offline mongodb with a bbox or polygon
+        // and return objects/clusters
         for(let path in state.paths) {
           if(path) {
             state.paths[path].showLayer(30)
           }
         }
-        showObjects()
     }
     const showObjects = () => {
-      for(let object in state.objects) {
-        state.objects[object].showLayer(false)
-      }
+        state.objects.showLayer(false)
     }
 
     // add a single path
@@ -49,13 +49,10 @@ export default function Map() {
     }
 
     const addObjectGroup = (id) => {
-      if(state.objectData && !state.objects.hasOwnProperty(id)) {
+      if(state.objectData && !state.objects) {
         dispatch({
           type: 'ADD_OBJECT_GROUP',
-          payload: {
-            id,
-            objectGroup: new ObjectPolygon(map.current, id, objectsData, getStateFunction, dispatch)
-          }
+          payload: new ObjectPolygon(map.current, id, objectsData, getStateFunction, dispatch)
         })
       }
     }
@@ -101,7 +98,7 @@ export default function Map() {
       map.current.on('load', () => {
         addObjectGroup('objects A')
       })
-    }, [state.objectData])
+    }, [state.objectData, state.objectGroup])
 
 
     return (
