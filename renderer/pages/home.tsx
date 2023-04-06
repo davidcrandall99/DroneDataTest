@@ -17,7 +17,6 @@ function Home() {
       <Head>
         <title>Home - Nextron (with-typescript-tailwindcss)</title>
       </Head>
-      <Menu />
       <Map />
 
     </React.Fragment>

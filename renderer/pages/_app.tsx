@@ -26,7 +26,8 @@ const initialState:any = {
   paths: null,
   pathsShown: false,
   objects: null,
-  selectedObject: null
+  selectedObject: null,
+  selectedPath: null
 }
 
 const Reducer = (state, action) => {
@@ -58,6 +59,9 @@ const Reducer = (state, action) => {
         newState.objects.showLayer()
       }
       return newState;
+    case "SHOW_OBJECTS_NEAR_PATH":
+      newState.paths.getObjectsNearPoint()
+      return newState;
     case "SHOW_PATH":
       if(newState.paths != null) {
         newState.paths.showLayer(30)
@@ -78,6 +82,9 @@ const Reducer = (state, action) => {
       return newState;
     case "SET_CLICKED_OBJECT":
       newState.selectedObject = payload;
+      return newState
+    case "SET_CLICKED_PATH":
+      newState.selectedPath = payload;
       return newState
     default:
       return state;

@@ -49,6 +49,10 @@ export default function Map() {
       }
     }
 
+    const showObjectsNearPath = () => {
+      dispatch({ type: "SHOW_OBJECTS_NEAR_PATH"})
+    }
+
 
     useEffect(() => {
         if (map.current) return; //stops map from intializing more than once
@@ -97,9 +101,21 @@ export default function Map() {
         <div className="w-full h-full absolute">
             <div className='w-full h-full' ref={mapContainer} />
             <Draggable>
-                {state.pathsShown == false ?
+                {state.paths && !state.pathsShown &&
                     <button onClick={showPath}>Show Path</button>
-                    : ''
+                }
+                {
+                  !state.selectedPath && state.pathsShown &&
+                  <p>Click a path for more info</p>
+                }
+
+                {
+                  state.selectedPath && 
+                  <p>
+                    <b>Path ID:</b>{state.selectedPath.properties.id}<br/>
+                    <b>Altitude:</b> {state.selectedPath.properties.altitude}<br/>
+                    <button onClick={showObjectsNearPath}>Show Nearby Objects</button>
+                  </p>
                 }
               
             </Draggable>
@@ -107,7 +123,7 @@ export default function Map() {
                 <p>Lat: {state.lat}</p>
                 <p>Lng: {state.lng}</p>
             </div>
-            <div className="w-[250px] h-full bg-[rgba(0,0,0,0.5)] p-4 top-[55px] z-0 left-0 fixed text-white">
+            {/* <div className="w-[250px] h-full bg-[rgba(0,0,0,0.5)] p-4 top-[55px] z-0 left-0 fixed text-white">
                 {state.paths !== null &&
                     <button onClick={showPath}>Show Path</button>
                 }
@@ -117,7 +133,7 @@ export default function Map() {
                   <b>Object Type:{state.selectedObject.geometry.type}</b>
                   </p>
                 }
-            </div>
+            </div> */}
         </div>
     )
 }

@@ -70,6 +70,7 @@ export class PathGroup {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
   }
   getObjectsNearPoint() {
+    console.log('getobjectnear')
     const line = this.clickedLine ? this.clickedLine : turf.lineString(this.pathData);
     const point = pointOnFeature(line);
     this.dispatch({
@@ -144,6 +145,7 @@ export class PathGroup {
     this.map.on("click", (e) => {
       if(this.hoveredLine) {
         this.clickedLine = this.hoveredLine;
+        this.dispatch({type: "SET_CLICKED_PATH", payload: this.clickedLine })
       }
       if (this.clickedLine) {
 
@@ -153,6 +155,7 @@ export class PathGroup {
         if (distanceFromClick >= 2) {
           this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
           this.clickedLine = null;
+          this.dispatch({type: "SET_CLICKED_PATH", payload: null })
           this.hoveredLine = null;
           this.removeExtrusion();
           this.removeToolTip();
