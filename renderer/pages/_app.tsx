@@ -45,7 +45,6 @@ const Reducer = (state, action) => {
       return newState;
     case "ADD_DRONE_PATH":
       newState.paths = payload
-      newState.pathsShown = true
       return newState
     case "ADD_OBJECT_GROUP":
       newState.objects = payload
@@ -62,6 +61,7 @@ const Reducer = (state, action) => {
     case "SHOW_PATH":
       if(newState.paths != null) {
         newState.paths.showLayer(30)
+        newState.pathsShown = true
       }
       return newState;
     case "SET_OBJECT_DATA":

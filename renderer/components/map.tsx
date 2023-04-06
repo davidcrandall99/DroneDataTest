@@ -22,9 +22,9 @@ export default function Map() {
       return state
     }, [state])
     const showPath = () => {
-        if(state.paths) {
-            state.paths.showLayer(30)
-        }
+        dispatch({
+          type: "SHOW_PATH"
+        })
     }
     const showObjects = () => {
         state.objects.showLayer(false)
@@ -97,8 +97,9 @@ export default function Map() {
         <div className="w-full h-full absolute">
             <div className='w-full h-full' ref={mapContainer} />
             <Draggable>
-                {state.paths !== null && !state.pathsShown &&
+                {state.pathsShown == false ?
                     <button onClick={showPath}>Show Path</button>
+                    : ''
                 }
               
             </Draggable>
