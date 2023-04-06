@@ -90,7 +90,8 @@ export class ObjectPolygon {
         this.showLayer()
     }
     removeObjects(){
-        this.map.removeLayer(this.objectLayer)
+        if(this.map.getLayer(this.objectLayer.id))
+            this.map.removeLayer(this.objectLayer.id)
     }
     showObjectsNearPoint(point) {
         const objectsNearPoint = []
@@ -108,14 +109,34 @@ export class ObjectPolygon {
     }
 
     createMapEvents() {
+        this.map.on("mouseenter", this.objectLayer.id, (e) => {
+            this.hoveredObject = e.features[0]
+            this.map.getCanvas().style.cursor = 'pointer';
+        })
+        this.map.on("mouseleave", this.objectLayer.id, (e) => {
+            this.hoveredObject = null;
+            this.map.getCanvas().style.cursor = ''
+        })
         this.map.on("click", this.objectLayer.id, (e) => {
             const feature = e.features[0];
-            this.addToolTip(feature)
             this.dispatch({
                 type:"SET_CLICKED_OBJECT",
                 payload: feature
             })
         })
+    }
+
+    clearSelections() {
+        if(this.tooltip) {
+            this.tooltip.remove()
+        }
+        if(this.clickedObject) {
+            this.clickedObject = null;
+            this.dispatch({
+                type:"SET_CLICKED_OBJECT",
+                payload: null
+            })
+        }
     }
 
     addToolTip(feature) {

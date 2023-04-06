@@ -25,6 +25,7 @@ const initialState:any = {
   objectData: null,
   paths: null,
   pathsShown: false,
+  objectsShown: false,
   objects: null,
   selectedObject: null,
   selectedPath: null
@@ -60,10 +61,13 @@ const Reducer = (state, action) => {
       }
       return newState;
     case "SHOW_OBJECTS_NEAR_PATH":
-      newState.paths.getObjectsNearPoint()
+      newState.paths.showObjectsNearPoint()
       return newState;
     case "SHOW_PATH":
       if(newState.paths != null) {
+        if(newState.paths.showingObjects) {
+          newState.objects.removeObjects()
+        }
         newState.paths.showLayer(30)
         newState.pathsShown = true
       }
@@ -73,6 +77,8 @@ const Reducer = (state, action) => {
       return newState;
     case "HIDE_OBJECT_LAYER":
         newState.objects.removeObjects()
+        newState.selectedObjects = null;
+        newState.objectsShown = false;
         return newState;
     case "GET_PATH_DATA":
       newState.pathData = pathData
@@ -81,8 +87,16 @@ const Reducer = (state, action) => {
       newState.objectData = objectData
       return newState;
     case "SET_CLICKED_OBJECT":
+      if(payload == null) {
+        newState.objects.clearSelections();
+      }
       newState.selectedObject = payload;
       return newState
+    case "CLEAR_LINE_SELECTIONS":
+      console.log('clear')
+      newState.paths.clearSelections();
+      newState.objects.removeObjects();
+      return newState;
     case "SET_CLICKED_PATH":
       newState.selectedPath = payload;
       return newState

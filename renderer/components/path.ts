@@ -21,6 +21,7 @@ export class PathGroup {
   linestrings;
   dispatch;
   state;
+  showingObjects;
 
   constructor(map, name, data, getStateFunction, dispatch) {
     console.log({getStateFunction, dispatch})
@@ -29,6 +30,7 @@ export class PathGroup {
     this.map = map;
     this.name = name;
     this.data = data;
+    this.showingObjects = false;
     this.pathCoordinates = [];
     this.linestrings = [];
 
@@ -69,7 +71,7 @@ export class PathGroup {
   addSourceToMap() {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
   }
-  getObjectsNearPoint() {
+  showObjectsNearPoint() {
     console.log('getobjectnear')
     const line = this.clickedLine ? this.clickedLine : turf.lineString(this.pathData);
     const point = pointOnFeature(line);
@@ -77,7 +79,7 @@ export class PathGroup {
       type: "SHOW_OBJECT_LAYER",
       payload: point
     })
-  
+    this.showingObjects = true;
   }
   createMapEvents() {
     this.map.on("mousemove", (e) => {
@@ -103,6 +105,7 @@ export class PathGroup {
       }
     });
     this.map.on("mouseenter", this.pathLayer.id, (e) => {
+      if(this.showingObjects) return;
       let feature = e.features[0];
       let coordinates = feature.geometry.coordinates.slice();
       this.map.getCanvas().style.cursor = 'pointer';
@@ -143,6 +146,7 @@ export class PathGroup {
       }
     });
     this.map.on("click", (e) => {
+      if(this.showingObjects) return;
       if(this.hoveredLine) {
         this.clickedLine = this.hoveredLine;
         this.dispatch({type: "SET_CLICKED_PATH", payload: this.clickedLine })
@@ -174,7 +178,6 @@ export class PathGroup {
           this.clickedLine.properties.id
         );
         this.extrusion.addLayer();
-        this.addToolTip(this.clickedLine);
       } else {
         this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
       }
@@ -198,7 +201,7 @@ export class PathGroup {
         </p>
     `;
     this.tooltip.setLngLat(middle.geometry.coordinates).setHTML(html).addTo(this.map);
-    document.getElementById("tooltipBtn").onclick =() =>{ this.getObjectsNearPoint() }
+    document.getElementById("tooltipBtn").onclick =() =>{ this.showObjectsNearPoint() }
   }
   removeToolTip() {
     if (this.tooltip) this.tooltip.remove();
@@ -213,5 +216,20 @@ export class PathGroup {
       this.createMapEvents();
     }
     this.map.fitBounds(this.boundingBox, { padding, pitch });
+  }
+  clearSelections() {
+    this.dispatch({type: "SET_CLICKED_PATH", payload: null });
+    this.dispatch({type: "HIDE_OBJECTS_LAYER", payload: null });
+    this.hoveredLine = null;
+    this.clickedLine = null;
+    this.showingObjects = false;
+    if(this.extrusion) {
+      this.removeExtrusion();
+    }
+    this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
+    this.showLayer();
+  }
+  setShowingObjects(val) {
+    this.showingObjects = val
   }
 }

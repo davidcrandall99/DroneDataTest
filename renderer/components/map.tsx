@@ -100,8 +100,8 @@ export default function Map() {
     return (
         <div className="w-full h-full absolute">
             <div className='w-full h-full' ref={mapContainer} />
-            <Draggable top={100} width={450} height={200}>
-                {state.paths && !state.pathsShown &&
+            <Draggable top={100} width="auto" height="auto">
+                {state.paths && !state.pathsShown && !state.objectsShown &&
                     <button className="bg-white text-black py-2 px-4 rounded mx-auto block" onClick={showPath}>Show Path</button>
                 }
                 {
@@ -110,12 +110,22 @@ export default function Map() {
                 }
 
                 {
-                  state.selectedPath && 
+                  state.selectedPath && !state.selectedObject &&
                   <p>
-                    <b>Path ID:</b>{state.selectedPath.properties.id}<br/>
+                    <b>Path ID:</b> {state.selectedPath.properties.id}<br/>
                     <b>Altitude:</b> {state.selectedPath.properties.altitude}<br/>
-                    <button className='bg-white text-black py-2 px-4 rounded my-2' onClick={showObjectsNearPath}>Show Nearby Objects</button>
+                    <button className='bg-white text-black py-2 px-4 rounded my-2' onClick={showObjectsNearPath}>Show Nearby Objects</button><br/>
+                    <button className="underline" onClick={() => {dispatch({type: "CLEAR_LINE_SELECTIONS"})}}>Go Back</button>
                   </p>
+                }
+                {
+                  state.selectedObject && 
+                    <p>
+                      <b>Object ID:</b> {state.selectedObject.properties.id}<br/>
+                      <b>Height:</b> {state.selectedObject.properties.height}<br/>
+                      <button className="underline" onClick={() => {dispatch({type: "SET_CLICKED_OBJECT", payload: null})}}>Go Back</button>
+                    </p>
+                  
                 }
             </Draggable>
             <div className="w-25 h-25 bg-slate absolute bottom-0 left-0 z-10">
