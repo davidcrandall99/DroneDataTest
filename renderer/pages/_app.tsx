@@ -23,7 +23,8 @@ const initialState:any = {
   hoveredLineId: null,
   pathData: null,
   objectData: null,
-  paths: {},
+  paths: null,
+  pathsShown: false,
   objects: null,
   selectedObject: null
 }
@@ -43,7 +44,8 @@ const Reducer = (state, action) => {
       newState.hoveredLineId = payload
       return newState;
     case "ADD_DRONE_PATH":
-      newState.paths[payload.id] = payload.path
+      newState.paths = payload
+      newState.pathsShown = true
       return newState
     case "ADD_OBJECT_GROUP":
       newState.objects = payload
@@ -56,6 +58,14 @@ const Reducer = (state, action) => {
       } else {
         newState.objects.showLayer()
       }
+      return newState;
+    case "SHOW_PATH":
+      if(newState.paths != null) {
+        newState.paths.showLayer(30)
+      }
+      return newState;
+    case "SET_OBJECT_DATA":
+      
       return newState;
     case "HIDE_OBJECT_LAYER":
         newState.objects.removeObjects()

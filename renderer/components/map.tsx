@@ -3,6 +3,7 @@ import { Context } from '../pages/_app';
 import { PathGroup } from './path';
 import maplibregl from 'maplibre-gl';
 import { ObjectPolygon } from './objectPolygon';
+import Draggable from './draggable';
 
 
 
@@ -21,14 +22,8 @@ export default function Map() {
       return state
     }, [state])
     const showPath = () => {
-        // ideally, we'd dispatch a function to get paths within a bounding box
-        // if we have a full-globe view, we could get clusters
-        // it would be nice to query sqlite or offline mongodb with a bbox or polygon
-        // and return objects/clusters
-        for(let path in state.paths) {
-          if(path) {
-            state.paths[path].showLayer(30)
-          }
+        if(state.paths) {
+            state.paths.showLayer(30)
         }
     }
     const showObjects = () => {
@@ -37,13 +32,10 @@ export default function Map() {
 
     // add a single path
     const addPathGroup = (id) => {
-      if(state.pathData && !state.paths.hasOwnProperty(id)) {
+      if(state.pathData && !state.paths) {
         dispatch({
           type: 'ADD_DRONE_PATH',
-          payload: {
-            id,
-            path: new PathGroup(map.current, id, pathsData, getStateFunction, dispatch)
-          }
+          payload: new PathGroup(map.current, id, pathsData, getStateFunction, dispatch)
         })
       }
     }
@@ -104,12 +96,18 @@ export default function Map() {
     return (
         <div className="w-full h-full absolute">
             <div className='w-full h-full' ref={mapContainer} />
+            <Draggable>
+                {state.paths !== null && !state.pathsShown &&
+                    <button onClick={showPath}>Show Path</button>
+                }
+              
+            </Draggable>
             <div className="w-25 h-25 bg-slate absolute bottom-0 left-0 z-10">
                 <p>Lat: {state.lat}</p>
                 <p>Lng: {state.lng}</p>
             </div>
             <div className="w-[250px] h-full bg-[rgba(0,0,0,0.5)] p-4 top-[55px] z-0 left-0 fixed text-white">
-                {Object.keys(state.paths).length > 0 &&
+                {state.paths !== null &&
                     <button onClick={showPath}>Show Path</button>
                 }
                 {state.selectedObject &&
