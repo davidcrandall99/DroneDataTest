@@ -100,9 +100,9 @@ export default function Map() {
     return (
         <div className="w-full h-full absolute">
             <div className='w-full h-full' ref={mapContainer} />
-            <Draggable>
+            <Draggable top={100} width={450} height={200}>
                 {state.paths && !state.pathsShown &&
-                    <button onClick={showPath}>Show Path</button>
+                    <button className="bg-white text-black py-2 px-4 rounded mx-auto block" onClick={showPath}>Show Path</button>
                 }
                 {
                   !state.selectedPath && state.pathsShown &&
@@ -114,10 +114,9 @@ export default function Map() {
                   <p>
                     <b>Path ID:</b>{state.selectedPath.properties.id}<br/>
                     <b>Altitude:</b> {state.selectedPath.properties.altitude}<br/>
-                    <button onClick={showObjectsNearPath}>Show Nearby Objects</button>
+                    <button className='bg-white text-black py-2 px-4 rounded my-2' onClick={showObjectsNearPath}>Show Nearby Objects</button>
                   </p>
                 }
-              
             </Draggable>
             <div className="w-25 h-25 bg-slate absolute bottom-0 left-0 z-10">
                 <p>Lat: {state.lat}</p>
