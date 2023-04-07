@@ -3,7 +3,7 @@ import bbox from '@turf/bbox';
 import pointOnFeature from "@turf/point-on-feature";
 import * as turf from "@turf/helpers";
 import distance from "@turf/distance";
-
+import { rootActions } from '../state';
 
 export class ObjectPolygon {
     data;
@@ -169,7 +169,7 @@ export class ObjectPolygon {
                 "#0CF"
             ])
             this.dispatch({
-                type:"SET_CLICKED_OBJECT",
+                type: rootActions.object.SET_CLICKED_OBJECT,
                 payload: feature
             })
         })
@@ -182,7 +182,7 @@ export class ObjectPolygon {
         if(this.clickedObject) {
             this.clickedObject = null;
             this.dispatch({
-                type:"SET_CLICKED_OBJECT",
+                type: rootActions.object.SET_CLICKED_OBJECT,
                 payload: null
             })
         }

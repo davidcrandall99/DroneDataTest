@@ -5,6 +5,7 @@ import pointOnFeature from "@turf/point-on-feature";
 import maplibregl from "maplibre-gl";
 import { ObjectPolygon } from "./objectPolygon";
 import { ExtrusionLayer } from "./extrusion";
+import { rootActions } from "../state";
 export class PathGroup {
   pathData;
   pathSource;
@@ -25,7 +26,6 @@ export class PathGroup {
 
   constructor(map, name, data, getStateFunction, dispatch) {
     this.dispatch = dispatch;
-    this.state = getStateFunction;
     this.map = map;
     this.name = name;
     this.data = data;
@@ -74,7 +74,7 @@ export class PathGroup {
     const line = this.clickedLine ? this.clickedLine : turf.lineString(this.pathData);
     const point = pointOnFeature(line);
     this.dispatch({
-      type: "SHOW_OBJECT_LAYER",
+      type: rootActions.object.SHOW_OBJECT_LAYER,
       payload: point
     })
     this.showingObjects = true;
@@ -147,7 +147,7 @@ export class PathGroup {
       if(this.showingObjects) return;
       if(this.hoveredLine) {
         this.clickedLine = this.hoveredLine;
-        this.dispatch({type: "SET_CLICKED_PATH", payload: this.clickedLine })
+        this.dispatch({type: rootActions.path.SET_CLICKED_PATH, payload: this.clickedLine })
       }
       if (this.clickedLine) {
 
@@ -157,7 +157,7 @@ export class PathGroup {
         if (distanceFromClick >= 2) {
           this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
           this.clickedLine = null;
-          this.dispatch({type: "SET_CLICKED_PATH", payload: null })
+          this.dispatch({type: rootActions.path.SET_CLICKED_PATH, payload: null })
           this.hoveredLine = null;
           this.removeExtrusion();
           this.removeToolTip();
@@ -216,8 +216,8 @@ export class PathGroup {
     this.map.fitBounds(this.boundingBox, { padding, pitch });
   }
   clearSelections() {
-    this.dispatch({type: "SET_CLICKED_PATH", payload: null });
-    this.dispatch({type: "HIDE_OBJECTS_LAYER", payload: null });
+    this.dispatch({type: rootActions.path.SET_CLICKED_PATH, payload: null });
+    this.dispatch({type: rootActions.object.HIDE_OBJECT_LAYER, payload: null });
     this.hoveredLine = null;
     this.clickedLine = null;
     this.showingObjects = false;
