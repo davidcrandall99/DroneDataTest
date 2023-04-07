@@ -124,7 +124,6 @@ export class ObjectPolygon {
             this.hoveredObject = e.features[0]
             this.map.getCanvas().style.cursor = 'pointer';
             if(this.clickedObject && this.hoveredObject.properties.id !== this.clickedObject.properties.id) {
-                console.log('should have orange')
                 this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", [
                     "match",
                     ["get", "id"],
@@ -135,7 +134,6 @@ export class ObjectPolygon {
                     "#0CF"
                 ])
             } else {
-                console.log('should not have orange')
                 this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", [
                     "match",
                     ["get", "id"],

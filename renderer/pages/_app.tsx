@@ -129,6 +129,7 @@ const Reducer = (state, action) => {
       if(payload == null) {
         newState.objects.clearSelections();
       }
+      newState.selectedObjectClass = null;
       newState.selectedObject = payload;
       return newState
     case "CLEAR_LINE_SELECTIONS":
