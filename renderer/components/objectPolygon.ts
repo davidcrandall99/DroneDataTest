@@ -46,7 +46,7 @@ export class ObjectPolygon {
             source: this.objectSource.name,
             paint: {
                 "fill-extrusion-color": "#0CF",
-                "fill-extrusion-opacity": 0.5,
+                "fill-extrusion-opacity": 0.8,
                 "fill-extrusion-height": ["get", "height"],
                 "fill-extrusion-base": ["get", "base"]
             }
@@ -123,13 +123,53 @@ export class ObjectPolygon {
         this.map.on("mouseenter", this.objectLayer.id, (e) => {
             this.hoveredObject = e.features[0]
             this.map.getCanvas().style.cursor = 'pointer';
+            if(this.clickedObject && this.hoveredObject.properties.id !== this.clickedObject.properties.id) {
+                console.log('should have orange')
+                this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", [
+                    "match",
+                    ["get", "id"],
+                    this.hoveredObject.properties.id,
+                    "#0FF",
+                    this.clickedObject.properties.id,
+                    "#FA0",
+                    "#0CF"
+                ])
+            } else {
+                console.log('should not have orange')
+                this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", [
+                    "match",
+                    ["get", "id"],
+                    this.hoveredObject.properties.id,
+                    "#0FF",
+                    "#0CF"
+                ])
+            }
         })
         this.map.on("mouseleave", this.objectLayer.id, (e) => {
             this.hoveredObject = null;
             this.map.getCanvas().style.cursor = ''
+            if(this.clickedObject) {
+                this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", [
+                    "match",
+                    ["get", "id"],
+                    this.clickedObject.properties.id,
+                    "#FA0",
+                    "#0CF"
+                ])
+            } else {
+                this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", "#0CF")
+            }
         })
         this.map.on("click", this.objectLayer.id, (e) => {
             const feature = e.features[0];
+            this.clickedObject = feature;
+            this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", [
+                "match",
+                ["get", "id"],
+                feature.properties.id,
+                "#FA0",
+                "#0CF"
+            ])
             this.dispatch({
                 type:"SET_CLICKED_OBJECT",
                 payload: feature
@@ -148,9 +188,10 @@ export class ObjectPolygon {
                 payload: null
             })
         }
+        this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", "#0CF")
     }
 
-    addToolTip(feature) {
+    addToolTip(feature, html) {
         const point = pointOnFeature(feature);
         const properties = feature.properties;
         if (!this.tooltip) {
@@ -159,12 +200,14 @@ export class ObjectPolygon {
                 closeOnClick: false,
             });
         }
-        let html = `
+        if(!html) {
+        html = `
             <p>
                 <b>Object ID:</b> ${properties.id}<br>
                 <b>Altitude:</b> ${properties.height}
             </p>
         `;
+        }
         if(point.geometry.coordinates.length == 2) {
             this.tooltip.setLngLat(point.geometry.coordinates).setHTML(html).addTo(this.map)
         }
