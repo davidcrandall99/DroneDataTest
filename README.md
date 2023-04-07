@@ -2,37 +2,21 @@
 
 ## Usage
 
-### Create an App
+### Install dependencies
 
 ```
-# with npx
-$ npx create-nextron-app my-app --example with-tailwindcss
-
-# with yarn
-$ yarn create nextron-app my-app --example with-tailwindcss
-
-# with pnpx
-$ pnpx create-nextron-app my-app --example with-tailwindcss
+npm install
 ```
+### .env variables
 
-### Install Dependencies
+In the `renderer` directory, add a `.env` file with a maptiler API key
 
 ```
-$ cd my-app
-
-# using yarn or npm
-$ yarn (or `npm install`)
-
-# using pnpm
-$ pnpm install --shamefully-hoist
+API_KEY=asfdasdfadsfasdf
 ```
 
-### Use it
+Run the app locally
 
 ```
-# development mode
-$ yarn dev (or `npm run dev` or `pnpm run dev`)
-
-# production build
-$ yarn build (or `npm run build` or `pnpm run build`)
+npm run dev
 ```
