@@ -101,6 +101,8 @@ const Reducer = (state, action) => {
       newState.editingObjectClass = payload;
       return newState;
     case "SAVE_OBJECT_DATA":
+      // NOTE: there is no database, just sample data.
+      // In a realworld scenario, we'd store this data to the file, or to a database
       for(let i in newState.objectData) {
         if(newState.selectedObject.properties.id == newState.objectData[i].id) {
           newState.objectData[i]['class'] = newState.selectedObjectClass;
