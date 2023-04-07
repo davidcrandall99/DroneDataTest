@@ -19,12 +19,14 @@ export class ObjectPolygon {
     tooltip;
     dispatch;
     state;
+    focusPoint;
 
     constructor(map, name, data, getStateFunction, dispatch) {
         this.dispatch = dispatch;
         this.state = getStateFunction;
         this.map = map;
         this.data = data;
+        this.focusPoint = null;
         this.boundingBox  = null;
         this.objectCoordinates = [];
         this.objectData = {
@@ -56,6 +58,9 @@ export class ObjectPolygon {
         this.tooltip = null;
         this.createMapEvents()
     }
+    setData(data) {
+        this.data = data
+    }
     setObjectsFromData(data) {
         this.objectData.features = []
         for (let i = 0; i in data; i++) {
@@ -69,7 +74,8 @@ export class ObjectPolygon {
                 properties: {
                     id: object.id,
                     height: object.height,
-                    base: object.base
+                    base: object.base,
+                    class: object.class ? object.class : null
                 }
             }
             this.objectData.features.push(polygon)
@@ -93,19 +99,24 @@ export class ObjectPolygon {
         if(this.map.getLayer(this.objectLayer.id))
             this.map.removeLayer(this.objectLayer.id)
     }
-    showObjectsNearPoint(point) {
-        const objectsNearPoint = []
-        for(let i = 0; i in this.data; i++) {
-            let object = this.data[i]
-            let polygon = turf.polygon(object.coordinates)
-            let polygonPoint = pointOnFeature(polygon)
-            let distanceFrom = distance(polygonPoint, point)
-            if (distanceFrom < 2) {
-                objectsNearPoint.push(object)
-            }
+    showObjectsNearPoint(point, zoomTo = true) {
+        if(point) {
+            this.focusPoint = point;
         }
-        this.setObjectsFromData(objectsNearPoint)
-        this.showLayer(true, 30)
+        if(this.focusPoint){
+            const objectsNearPoint = []
+            for(let i = 0; i in this.data; i++) {
+                let object = this.data[i]
+                let polygon = turf.polygon(object.coordinates)
+                let polygonPoint = pointOnFeature(polygon)
+                let distanceFrom = distance(polygonPoint, point)
+                if (distanceFrom < 2) {
+                    objectsNearPoint.push(object)
+                }
+            }
+            this.setObjectsFromData(objectsNearPoint)
+            this.showLayer(zoomTo, 30)
+        }
     }
 
     createMapEvents() {

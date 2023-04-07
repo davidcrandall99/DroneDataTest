@@ -24,7 +24,6 @@ export class PathGroup {
   showingObjects;
 
   constructor(map, name, data, getStateFunction, dispatch) {
-    console.log({getStateFunction, dispatch})
     this.dispatch = dispatch;
     this.state = getStateFunction;
     this.map = map;
@@ -72,7 +71,6 @@ export class PathGroup {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
   }
   showObjectsNearPoint() {
-    console.log('getobjectnear')
     const line = this.clickedLine ? this.clickedLine : turf.lineString(this.pathData);
     const point = pointOnFeature(line);
     this.dispatch({

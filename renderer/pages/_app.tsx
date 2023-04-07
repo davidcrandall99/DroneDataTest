@@ -28,7 +28,24 @@ const initialState:any = {
   objectsShown: false,
   objects: null,
   selectedObject: null,
-  selectedPath: null
+  selectedPath: null,
+  editingObjectClass: false,
+  selectedObjectClass: null,
+  objectClasses: [{
+    label: 'Vehicle',
+    value: 'vehicle'
+  }, 
+  { 
+    label: 'Building',
+    value: 'building'
+  }, {
+    label: 'Base',
+    value: 'base', 
+  },
+  {
+    label: 'Unknown',
+    value: 'unknown'
+  }]
 }
 
 const Reducer = (state, action) => {
@@ -50,8 +67,6 @@ const Reducer = (state, action) => {
       return newState
     case "ADD_OBJECT_GROUP":
       newState.objects = payload
-      console.log('set objects')
-      console.log(newState.objects)
       return newState;
     case "SHOW_OBJECT_LAYER":
       if(payload) {
@@ -72,8 +87,32 @@ const Reducer = (state, action) => {
         newState.pathsShown = true
       }
       return newState;
-    case "SET_OBJECT_DATA":
-      
+    case 'SET_SELECTED_OBJECT_CLASS':
+      for(let i = 0; i in newState.objectClasses; i++) {
+        if(payload == newState.objectClasses[i].value) {
+          newState.selectedObjectClass = payload;
+          return newState;
+        }
+      }
+    case "EDITING_OBJECT_CLASS":
+      if(!payload) {
+        newState.selectedObjectClass = null;
+      }
+      newState.editingObjectClass = payload;
+      return newState;
+    case "SAVE_OBJECT_DATA":
+      for(let i in newState.objectData) {
+        if(newState.selectedObject.properties.id == newState.objectData[i].id) {
+          newState.objectData[i]['class'] = newState.selectedObjectClass;
+        }
+      }
+      newState.objects.setData(newState.objectData)
+      if(newState.objects.focusPoint){
+       newState.objects.showObjectsNearPoint(newState.objects.focusPoint, false)
+      }
+      newState.selectedObject.properties.class = newState.selectedObjectClass;
+      newState.selectedObjectClass = null;
+      newState.editingObjectClass = false;
       return newState;
     case "HIDE_OBJECT_LAYER":
         newState.objects.removeObjects()
@@ -93,7 +132,6 @@ const Reducer = (state, action) => {
       newState.selectedObject = payload;
       return newState
     case "CLEAR_LINE_SELECTIONS":
-      console.log('clear')
       newState.paths.clearSelections();
       newState.objects.removeObjects();
       return newState;

@@ -5,9 +5,16 @@ import maplibregl from 'maplibre-gl';
 import { ObjectPolygon } from './objectPolygon';
 import Draggable from './draggable';
 
+const MapUIReducer = (state, action) => {
 
+}
 
 export default function Map() {
+
+    const initialState = {
+      editObjectClass: false
+    }
+
     const [state, dispatch] = useContext(Context)
 
     const pathsData = state.pathData;
@@ -16,7 +23,6 @@ export default function Map() {
     const mapContainer = useRef(null);
     const map = useRef(null);
     const [API_KEY] = useState(process.env.API_KEY); // api key for map tiles & styles; you can host your own locally, but for now, we'll use an external source
-
 
     const getStateFunction = useCallback(() => {
       return state
@@ -96,7 +102,21 @@ export default function Map() {
       })
     }, [state.objectData, state.objectGroup])
 
-
+    const getObjectClass = () => {
+      if(state.selectedObjectClass){
+        return state.selectedObjectClass
+      }
+      if(state.selectedObject.properties.class) {
+        return state.selectedObject.properties.class
+      }
+      return 'unknown';
+    }
+    const handleObjectChange = (e) => {
+      dispatch({
+        type: 'SET_SELECTED_OBJECT_CLASS',
+        payload: e.target.value
+      })
+    }
     return (
         <div className="w-full h-full absolute">
             <div className='w-full h-full' ref={mapContainer} />
@@ -121,6 +141,26 @@ export default function Map() {
                 {
                   state.selectedObject && 
                     <p>
+                      <b>Object Class: </b> 
+                      { !state.editingObjectClass &&
+                      <>
+                        <span className="capitalize">
+                          { state.selectedObject.properties.class ? state.selectedObject.properties.class : 'Unknown' }
+                        </span> - <button className='underline' onClick={()=>{dispatch({type:"EDITING_OBJECT_CLASS", payload: true})}}>Set Class</button><br/>
+                      </>
+                      }
+                      { state.editingObjectClass &&
+                        <>
+                          <select className='text-black p-1 rounded' value={getObjectClass()} placeholder='Select Class' onChange={handleObjectChange}>
+                            {state.objectClasses.map((option) => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                          </select>
+                          <button onClick={() => { dispatch({type: "EDITING_OBJECT_CLASS", payload: false}) }} className="underline mx-2">Cancel</button>
+                          <button onClick={() => { dispatch({type: "SAVE_OBJECT_DATA" })}} className="underline mx-2">Save</button>
+                          <br/>
+                        </>
+                      }
                       <b>Object ID:</b> {state.selectedObject.properties.id}<br/>
                       <b>Height:</b> {state.selectedObject.properties.height}<br/>
                       <button className="underline" onClick={() => {dispatch({type: "SET_CLICKED_OBJECT", payload: null})}}>Go Back</button>
