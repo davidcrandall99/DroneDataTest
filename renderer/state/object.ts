@@ -1,3 +1,7 @@
+import Store from "electron-store";
+const store = new Store();
+import electron from "electron";
+let ipcRenderer = electron.ipcRenderer;
 const objectData = require("../mockData/objects.json");
 
 export const initialObjectState: any = {
@@ -29,6 +33,7 @@ export const initialObjectState: any = {
 
 // Actions
 export const OBJECTS = {
+  SET_OBJECT_DATA: "SET_OBJECT_DATA",
   GET_OBJECT_DATA: "GET_OBJECT_DATA",
   SET_CLICKED_OBJECT: "SET_CLICKED_OBJECT",
   ADD_OBJECT_GROUP: "ADD_OBJECT_GROUP",
@@ -40,12 +45,30 @@ export const OBJECTS = {
   HIDE_OBJECT_LAYER: "HIDE_OBJECT_LAYER",
 };
 
+
+const writeObjectData = (data) => {
+  const dataString = JSON.stringify(data);
+  ipcRenderer.send("saveObjectData", dataString);
+};
+
 export const ObjectReducer = (state, action) => {
   const newState = Object.assign({}, state);
   const payload = action.payload;
   switch (action.type) {
+    // sets data that has been fetched
+    case OBJECTS.SET_OBJECT_DATA:
+      if (payload) {
+        if (typeof payload == "string")
+          newState.objectData = JSON.parse(payload);
+        else newState.objectData = payload;
+      }
+      else writeObjectData(objectData)
+      return newState;
+    // fetches data
     case OBJECTS.GET_OBJECT_DATA:
-      newState.objectData = objectData;
+      if (!newState.objectData) {
+        ipcRenderer.send("getObjectData");
+      }
       return newState;
     case OBJECTS.SET_CLICKED_OBJECT:
       if (payload == null) {
@@ -65,7 +88,7 @@ export const ObjectReducer = (state, action) => {
       }
       return newState;
     case OBJECTS.SET_OBJECTS_SHOWN:
-      newState.objectsShown = payload
+      newState.objectsShown = payload;
       return newState;
     case OBJECTS.SET_SELECTED_OBJECT_CLASS:
       for (let i = 0; i in newState.objectClasses; i++) {
@@ -90,6 +113,8 @@ export const ObjectReducer = (state, action) => {
           newState.objectData[i]["class"] = newState.selectedObjectClass;
         }
       }
+      store.set("objects", newState.objectData);
+      writeObjectData(newState.objectData);
       newState.objects.setData(newState.objectData);
       if (newState.objects.focusPoint) {
         newState.objects.showObjectsNearPoint(
