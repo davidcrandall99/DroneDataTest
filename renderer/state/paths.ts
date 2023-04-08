@@ -13,6 +13,7 @@ export const initialPathState: any = {
 export const PATH = {
     GET_PATH_DATA: "GET_PATH_DATA",
     SHOW_PATH: "SHOW_PATH",
+    HIDE_PATH: "HIDE_PATH",
     SET_CLICKED_LINE_ID: "SET_CLICKED_LINE_ID",
     SET_HOVERED_LINE_ID: "SET_HOVERED_LINE_ID",
     ADD_DRONE_PATH: "ADD_DRONE_PATH",
@@ -31,12 +32,16 @@ export const PathRecuder = (state, action) => {
       return newState;
     case PATH.SHOW_PATH:
       if (newState.paths != null) {
-        if (newState.paths.showingObjects) {
-          newState.objects.removeObjects();
-        }
         newState.paths.showLayer(30);
         newState.pathsShown = true;
       }
+      return newState;
+    case PATH.HIDE_PATH: 
+      newState.paths.removeLayer()
+      newState.selectedPath = null;
+      newState.hoveredLine = null;
+      newState.clickedLine = null;
+      newState.pathsShown = false;
       return newState;
     case PATH.SET_CLICKED_LINE_ID:
       newState.clickedLineId = payload;
@@ -51,7 +56,6 @@ export const PathRecuder = (state, action) => {
       if(payload == null) {
         return newState;
       }
-      console.trace("Set clicked path", {payload});
       newState.selectedPath = payload;
       return newState;
     case PATH.CLEAR_LINE_SELECTIONS:

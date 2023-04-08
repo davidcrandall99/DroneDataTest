@@ -59,9 +59,10 @@ export class ObjectPolygon {
         this.createMapEvents()
     }
     setData(data) {
+        console.log(data)
         this.data = data
     }
-    setObjectsFromData(data) {
+    setObjectsFromData(data = this.data) {
         this.objectData.features = []
         for (let i = 0; i in data; i++) {
             let object = data[i]

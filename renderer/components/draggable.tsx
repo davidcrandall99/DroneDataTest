@@ -1,12 +1,6 @@
-import React, { useRef, useEffect, useState, useContext, useCallback } from 'react';
-import { Context } from '../pages/_app';
-import Draggable, {DraggableCore} from "react-draggable";
+import Draggable from "react-draggable";
 
 export default function DraggableBox(props) {
-    const [state, dispatch] = useContext(Context)
-    const classList = () => {
-        return
-      }
     return (
         <Draggable bounds="parent">
         <div 

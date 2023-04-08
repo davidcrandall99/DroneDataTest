@@ -34,21 +34,25 @@ export class PathGroup {
     this.linestrings = [];
 
     for (let i = 0; i in data; i++) {
-        let path = data[i]; // the single path object
-        // multiline string
-        let linestring = turf.lineString(path.coordinates, {id: path.id, altitude: `${path.altitude}ft`, height: path.altitude,  "min-height": path.altitude - 100 })
-        this.linestrings.push(linestring)
+      let path = data[i]; // the single path object
+      // multiline string
+      let linestring = turf.lineString(path.coordinates, {
+        id: path.id,
+        altitude: `${path.altitude}ft`,
+        height: path.altitude,
+        "min-height": path.altitude - 100,
+      });
+      this.linestrings.push(linestring);
     }
 
-    this.pathData = turf.featureCollection(this.linestrings, {id: '123'}),
-
-    this.pathSource = {
-      name: `${name}Source`,
-      data: {
-        type: "geojson",
-        data: this.pathData,
-      },
-    };
+    (this.pathData = turf.featureCollection(this.linestrings, { id: "123" })),
+      (this.pathSource = {
+        name: `${name}Source`,
+        data: {
+          type: "geojson",
+          data: this.pathData,
+        },
+      });
     this.pathLayer = {
       id: name,
       type: "line",
@@ -71,42 +75,49 @@ export class PathGroup {
     this.map.addSource(this.pathSource.name, this.pathSource.data);
   }
   showObjectsNearPoint() {
-    const line = this.clickedLine ? this.clickedLine : turf.lineString(this.pathData);
+    const line = this.clickedLine
+      ? this.clickedLine
+      : turf.lineString(this.pathData);
     const point = pointOnFeature(line);
     this.dispatch({
       type: rootActions.object.SHOW_OBJECT_LAYER,
-      payload: point
-    })
+      payload: point,
+    });
     this.showingObjects = true;
   }
   createMapEvents() {
-    this.map.on("mousemove", (e) => {
+    this.map.on("mousemove", 'path', (e) => {
       if (this.hoveredLine) {
         let hoveredLngLat = [e.lngLat.lng, e.lngLat.lat];
         let hoveredPoint = pointOnFeature(this.hoveredLine);
         let distanceFrom = distance(hoveredLngLat, hoveredPoint);
-        if (distanceFrom >= 2) {
-          this.hoveredLine = null
-          this.map.getCanvas().style.cursor = ''
-          if (!this.clickedLine) {
-            this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
-          } else {
-            this.map.setPaintProperty(this.pathLayer.id, "line-opacity", [
-              "match",
-              ["get", "id"],
-              this.clickedLine.properties.id,
-              1,
-              0.25,
-            ]);
+        if (this.pathLayer) {
+          if (distanceFrom >= 2) {
+            this.hoveredLine = null;
+            this.map.getCanvas().style.cursor = "";
+            if (!this.clickedLine) {
+              this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
+            } else {
+              this.map.setPaintProperty(this.pathLayer.id, "line-opacity", [
+                "match",
+                ["get", "id"],
+                this.clickedLine.properties.id,
+                1,
+                0.25,
+              ]);
+            }
           }
         }
       }
     });
     this.map.on("mouseenter", this.pathLayer.id, (e) => {
-      if(this.showingObjects) return;
+      if (this.showingObjects) {
+        return;
+      }
+      
       let feature = e.features[0];
       let coordinates = feature.geometry.coordinates.slice();
-      this.map.getCanvas().style.cursor = 'pointer';
+      this.map.getCanvas().style.cursor = "pointer";
       let properties = feature.properties;
       if (
         !this.hoveredLine ||
@@ -144,20 +155,25 @@ export class PathGroup {
       }
     });
     this.map.on("click", (e) => {
-      if(this.showingObjects) return;
-      if(this.hoveredLine) {
+      if (this.showingObjects || !this.map.getLayer(this.pathLayer.id)) return;
+      if (this.hoveredLine) {
         this.clickedLine = this.hoveredLine;
-        this.dispatch({type: rootActions.path.SET_CLICKED_PATH, payload: this.clickedLine })
+        this.dispatch({
+          type: rootActions.path.SET_CLICKED_PATH,
+          payload: this.clickedLine,
+        });
       }
       if (this.clickedLine) {
-
         let clickedLngLat = [e.lngLat.lng, e.lngLat.lat];
         let linePoint = pointOnFeature(this.clickedLine);
         let distanceFromClick = distance(clickedLngLat, linePoint);
         if (distanceFromClick >= 2) {
           this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
           this.clickedLine = null;
-          this.dispatch({type: rootActions.path.SET_CLICKED_PATH, payload: null })
+          this.dispatch({
+            type: rootActions.path.SET_CLICKED_PATH,
+            payload: null,
+          });
           this.hoveredLine = null;
           this.removeExtrusion();
           this.removeToolTip();
@@ -190,7 +206,7 @@ export class PathGroup {
       });
     }
     // find the middle coordinate
-    let middle = pointOnFeature(line)
+    let middle = pointOnFeature(line);
     let html = `
         <p>
             <b>Path ID:</b> ${properties.id}<br>
@@ -198,8 +214,13 @@ export class PathGroup {
             <button id="tooltipBtn">Show Nearby Objects</button>
         </p>
     `;
-    this.tooltip.setLngLat(middle.geometry.coordinates).setHTML(html).addTo(this.map);
-    document.getElementById("tooltipBtn").onclick =() =>{ this.showObjectsNearPoint() }
+    this.tooltip
+      .setLngLat(middle.geometry.coordinates)
+      .setHTML(html)
+      .addTo(this.map);
+    document.getElementById("tooltipBtn").onclick = () => {
+      this.showObjectsNearPoint();
+    };
   }
   removeToolTip() {
     if (this.tooltip) this.tooltip.remove();
@@ -215,19 +236,27 @@ export class PathGroup {
     }
     this.map.fitBounds(this.boundingBox, { padding, pitch });
   }
+  removeLayer() {
+    this.map.removeLayer(this.pathLayer.id);
+    if (this.extrusion) {
+      this.removeExtrusion();
+    }
+  }
   clearSelections() {
-    this.dispatch({type: rootActions.path.SET_CLICKED_PATH, payload: null });
-    this.dispatch({type: rootActions.object.HIDE_OBJECT_LAYER, payload: null });
+    this.dispatch({ type: rootActions.path.SET_CLICKED_PATH, payload: null });
+    this.dispatch({
+      type: rootActions.object.HIDE_OBJECT_LAYER,
+      payload: null,
+    });
     this.hoveredLine = null;
     this.clickedLine = null;
     this.showingObjects = false;
-    if(this.extrusion) {
+    if (this.extrusion) {
       this.removeExtrusion();
     }
     this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
-    this.showLayer();
   }
   setShowingObjects(val) {
-    this.showingObjects = val
+    this.showingObjects = val;
   }
 }

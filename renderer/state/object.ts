@@ -38,6 +38,7 @@ export const OBJECTS = {
   SET_CLICKED_OBJECT: "SET_CLICKED_OBJECT",
   ADD_OBJECT_GROUP: "ADD_OBJECT_GROUP",
   SHOW_OBJECT_LAYER: "SHOW_OBJECT_LAYER",
+  SHOW_ALL: "SHOW_ALL",
   SET_OBJECTS_SHOWN: "SET_OBJECTS_SHOWN",
   SET_SELECTED_OBJECT_CLASS: "SET_SELECTED_OBJECT_CLASS",
   EDITING_OBJECT_CLASS: "EDITING_OBJECT_CLASS",
@@ -80,12 +81,18 @@ export const ObjectReducer = (state, action) => {
     case OBJECTS.ADD_OBJECT_GROUP:
       newState.objects = payload;
       return newState;
+    case OBJECTS.SHOW_ALL:
+      newState.objects.setData(newState.objectData)
+      newState.objects.setObjectsFromData()
+      newState.objects.showLayer(true)
+      return newState;
     case OBJECTS.SHOW_OBJECT_LAYER:
       if (payload) {
         newState.objects.showObjectsNearPoint(payload);
       } else {
-        newState.objects.showLayer();
+        newState.objects.showLayer(true);
       }
+      newState.objectsShown = true;
       return newState;
     case OBJECTS.SET_OBJECTS_SHOWN:
       newState.objectsShown = payload;
