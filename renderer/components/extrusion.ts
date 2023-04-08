@@ -22,11 +22,6 @@ export class ExtrusionLayer {
                 data: this.pathData
             }
         }
-        // this.feature = {
-        //     type: "Feature",
-        //     id: id ? id : 'extrusion',
-        //     geometry: this.pathData
-        // }
         this.layer = {
             id: name,
             source: this.source.name,
@@ -35,9 +30,7 @@ export class ExtrusionLayer {
                 'fill-extrusion-color': '#fc1',
                 'fill-extrusion-opacity': 0.5,
                 'fill-extrusion-height': ['get', 'height'],
-                'fill-extrusion-base': ['get', 'min-height'],
-                // 'fill-extrusion-vertical-gradient': true
-    
+                'fill-extrusion-base': ['get', 'min-height'],    
             }
         }
         this.map.addSource(this.source.name, this.source.data)
