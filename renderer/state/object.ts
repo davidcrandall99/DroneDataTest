@@ -85,6 +85,7 @@ export const ObjectReducer = (state, action) => {
       newState.objects.setData(newState.objectData)
       newState.objects.setObjectsFromData()
       newState.objects.showLayer(true)
+      newState.objectsShown = true;
       return newState;
     case OBJECTS.SHOW_OBJECT_LAYER:
       if (payload) {

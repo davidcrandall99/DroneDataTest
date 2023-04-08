@@ -244,10 +244,12 @@ export class PathGroup {
   }
   clearSelections() {
     this.dispatch({ type: rootActions.path.SET_CLICKED_PATH, payload: null });
-    this.dispatch({
-      type: rootActions.object.HIDE_OBJECT_LAYER,
-      payload: null,
-    });
+    if(this.showingObjects) {
+      this.dispatch({
+        type: rootActions.object.HIDE_OBJECT_LAYER,
+        payload: null,
+      });
+    }
     this.hoveredLine = null;
     this.clickedLine = null;
     this.showingObjects = false;
@@ -255,8 +257,5 @@ export class PathGroup {
       this.removeExtrusion();
     }
     this.map.setPaintProperty(this.pathLayer.id, "line-opacity", 0.5);
-  }
-  setShowingObjects(val) {
-    this.showingObjects = val;
   }
 }

@@ -21,7 +21,6 @@ export default function PathSettings() {
   }
   const clearLineSelecitons = () => {
     dispatch({ type: rootActions.path.CLEAR_LINE_SELECTIONS })
-    dispatch({ type: rootActions.object.HIDE_OBJECT_LAYER })
   }
 
   return (

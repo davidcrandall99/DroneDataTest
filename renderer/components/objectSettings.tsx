@@ -44,7 +44,7 @@ export default function ObjectSettings() {
       <p className="text-lg">Objects</p>
       <hr className="my-2"></hr>
       <button className="bg-slate-100 text-black py-1 px-2 m-2 ml-0 rounded inline-block" disabled={!state.object.objectData} onClick={showObjects}>Show All Objects</button>
-      <button className="bg-slate-100 text-black py-1 px-2 m-2 mr-0 rounded inline-block disabled:bg-slate-400" disabled={!state.object.objectsShown || !state.path.pathsShown} onClick={hideObjects}>Hide Objects</button>
+      <button className="bg-slate-100 text-black py-1 px-2 m-2 mr-0 rounded inline-block disabled:bg-slate-400" disabled={!state.object.objectsShown} onClick={hideObjects}>Hide Objects</button>
       {!state.object.objectsShown &&
         <p><em>No objects shown</em></p>
       }
