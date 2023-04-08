@@ -8,7 +8,7 @@ const isProd: boolean = process.env.NODE_ENV === 'production';
 const store = new Store()
 
 // uncomment to clear everytime
-store.clear()
+// store.clear()
 if (isProd) {
   serve({ directory: 'app' });
 } else {
