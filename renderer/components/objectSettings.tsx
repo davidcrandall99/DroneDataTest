@@ -17,14 +17,13 @@ export default function ObjectSettings() {
   const getObjectClass = () => {
     if (state.object.selectedObjectClass) {
       return state.object.selectedObjectClass.value
-    } else if (state.object.selectedObject.properties.class) {
-      return JSON.parse(state.object.selectedObject.properties.class).value
+    } else if (state.object.objectClasses[state.object.selectedObject.properties.class]) {
+      return state.object.selectedObject.properties.class
     } else {
       return state.object.objectClasses.unknown.value;
     }
   }
   const handleObjectChange = (e) => {
-    console.log('value', e.target.value)
     dispatch({
       type: rootActions.object.SET_SELECTED_OBJECT_CLASS,
       payload: e.target.value
@@ -59,7 +58,7 @@ export default function ObjectSettings() {
             <b>Object Classification: </b>
             {!state.object.editingObjectClass &&
               <>
-                {state.object.selectedObject.properties.class ? JSON.parse(state.object.selectedObject.properties.class).label : 'Unknown'}
+                {state.object.objectClasses[state.object.selectedObject.properties.class] ? state.object.objectClasses[state.object.selectedObject.properties.class].label : 'Unknown'}
                 - <button className='underline' onClick={() => { dispatch({ type: rootActions.object.EDITING_OBJECT_CLASS, payload: true }) }}>Set Class</button>
               </>
             }
@@ -85,6 +84,25 @@ export default function ObjectSettings() {
           <p><b>Height:</b> {state.object.selectedObject.properties.height}</p>
           <button className='underline' onClick={clearObjectSelection}>Clear object selection</button>
         </>
+      }
+      {
+        state.object.objectsShown &&
+        <div className='mt-4'>
+          <hr className='my-4'></hr>
+          {Object.keys(state.object.objectClasses).map((key) => {
+            let object = state.object.objectClasses[key]
+            return (
+            <div key={key} className='block my-2'>
+              <div className='inline-block float-left mr-2 w-[20px] h-[20px]' style={{backgroundColor: object.color}}></div>
+              <p>{object.label}</p>
+            </div>
+            )
+          })}
+          <div className='block my-2'>
+            <div className='inline-block float-left mr-2 w-[20px] h-[20px] bg-orange-400'></div>
+              <p>Selected</p>
+            </div>
+          </div>
       }
     </>
   )

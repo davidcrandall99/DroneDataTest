@@ -15,27 +15,27 @@ export const initialObjectState: any = {
     friendly: {
       label: "Friendly",
       value: "friendly",
-      color: "#0F5"
+      color: "green"
     },
     building: {
       label: "Building Of Interest",
       value: "building",
-      color: "#FCC"
+      color: "yellow"
     },
     vehicle: {
       label: "Vehicle Of Interest",
       value: "vehicle",
-      color: "#FFC"
+      color: "magenta"
     },
     other: {
       label: "Other",
       value: "other",
-      color: "#ACC"
+      color: "turquoise"
     },
     unknown: {
       label: "Unknown",
       value: "unknown",
-      color: "#CCF"
+      color: "lightgrey"
     }
   },
 };
@@ -109,7 +109,6 @@ export const ObjectReducer = (state, action) => {
       return newState;
     case OBJECTS.SET_SELECTED_OBJECT_CLASS:
       const newClass = newState.objectClasses[payload]
-      console.log({payload, newClass})
       newState.selectedObjectClass = newClass ? newClass : newState.objectClasses.unknown
       return newState;
     case OBJECTS.EDITING_OBJECT_CLASS:
@@ -119,11 +118,12 @@ export const ObjectReducer = (state, action) => {
       newState.editingObjectClass = payload;
       return newState;
     case OBJECTS.SAVE_OBJECT_DATA:
+      let classObject = newState.objectClasses[newState.selectedObjectClass.value] ? newState.objectClasses[newState.selectedObjectClass.value] : newState.objectClasses.unknown;
       for (let i in newState.objectData) {
         if (
           newState.selectedObject.properties.id == newState.objectData[i].id
         ) {
-          newState.objectData[i]["class"] = newState.selectedObjectClass;
+          newState.objectData[i]["class"] = classObject.value;
         }
       }
       store.set("objects", newState.objectData);
@@ -134,7 +134,8 @@ export const ObjectReducer = (state, action) => {
         if (
           newState.selectedObject.properties.id == currentData[i].id
         ) {
-          currentData[i]["class"] = newState.selectedObjectClass;
+          currentData[i]["class"] = classObject.value;
+          currentData[i]["color"] = classObject.color;
         }
       }
 
@@ -146,7 +147,7 @@ export const ObjectReducer = (state, action) => {
           false
         );
       }
-      newState.selectedObject.properties.class = JSON.stringify(newState.selectedObjectClass);
+      newState.selectedObject.properties.class = classObject.value
       newState.selectedObjectClass = null;
       newState.editingObjectClass = false;
       return newState;
