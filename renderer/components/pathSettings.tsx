@@ -25,7 +25,7 @@ export default function PathSettings() {
 
   return (
     <div className='mb-4'>
-      <p className="text-lg">Path</p>
+      <p className="text-base">Path</p>
       <hr className="my-2"></hr>
       <button className="bg-slate-100 text-black py-1 px-2 m-2 ml-0 rounded inline-block" disabled={!state.path.pathData} onClick={showPath}>Show Path</button>
       <button className="bg-slate-100 text-black py-1 px-2 m-2 mr-0 rounded inline-block disabled:bg-slate-400" disabled={!state.path.pathData || !state.path.pathsShown} onClick={hidePath}>Hide Path</button>

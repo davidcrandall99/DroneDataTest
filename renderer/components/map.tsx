@@ -88,7 +88,7 @@ export default function Map() {
   return (
     <div className="w-full h-full absolute">
       <div className='w-full h-full' ref={mapContainer} />
-      <Draggable top={100} width="auto" height="auto">
+      <Draggable top={100} width={370} height="auto" y="0" x="0" align="right">
         <PathSettings />
         <ObjectSettings />
       </Draggable>
