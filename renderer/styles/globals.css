@@ -17,10 +17,16 @@
 }
 .maplibregl-popup {
   max-width: 400px !important;
-  @apply text-slate-900 opacity-60 hover:opacity-100;
+  @apply text-slate-100 opacity-60 hover:opacity-100;
+}
+.maplibregl-popup {
+  @apply mt-[-20px]
 }
 .maplibregl-popup-content {
-  @apply p-5;
+  @apply p-2 capitalize bg-slate-900 text-lg;
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip, .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  @apply border-t-black;
 }
 .mapboxgl-popup-close-button {
   @apply top-0 right-2 text-xl;

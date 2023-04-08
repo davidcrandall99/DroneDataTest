@@ -61,6 +61,9 @@ export class ObjectPolygon {
     setData(data) {
         this.data = data
     }
+    getCurrentData() {
+        return this.data;
+    }
     setObjectsFromData(data = this.data) {
         this.objectData.features = []
         for (let i = 0; i in data; i++) {
@@ -75,7 +78,7 @@ export class ObjectPolygon {
                     id: object.id,
                     height: object.height,
                     base: object.base,
-                    class: object.class ? object.class : null
+                    class: object.class ? object.class : 'unknown'
                 }
             }
             this.objectData.features.push(polygon)
@@ -142,6 +145,8 @@ export class ObjectPolygon {
                     "#0CF"
                 ])
             }
+            this.addToolTip(this.hoveredObject, this.hoveredObject.properties.class)
+
         })
         this.map.on("mouseleave", this.objectLayer.id, (e) => {
             this.hoveredObject = null;
@@ -157,6 +162,7 @@ export class ObjectPolygon {
             } else {
                 this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", "#0CF")
             }
+            this.tooltip.remove()
         })
         this.map.on("click", this.objectLayer.id, (e) => {
             const feature = e.features[0];
@@ -189,12 +195,12 @@ export class ObjectPolygon {
         this.map.setPaintProperty(this.objectLayer.id, "fill-extrusion-color", "#0CF")
     }
 
-    addToolTip(feature, html) {
+    addToolTip(feature, html, closeButton = false) {
         const point = pointOnFeature(feature);
         const properties = feature.properties;
         if (!this.tooltip) {
             this.tooltip = new maplibregl.Popup({
-                closeButton: true,
+                closeButton,
                 closeOnClick: false,
             });
         }

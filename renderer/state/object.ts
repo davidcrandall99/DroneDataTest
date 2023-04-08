@@ -121,7 +121,18 @@ export const ObjectReducer = (state, action) => {
       }
       store.set("objects", newState.objectData);
       writeObjectData(newState.objectData);
-      newState.objects.setData(newState.objectData);
+
+      let currentData = newState.objects.getCurrentData()
+      for (let i in currentData) {
+        if (
+          newState.selectedObject.properties.id == currentData[i].id
+        ) {
+          currentData[i]["class"] = newState.selectedObjectClass;
+        }
+      }
+
+      newState.objects.setData(currentData);
+      newState.objects.setObjectsFromData()
       if (newState.objects.focusPoint) {
         newState.objects.showObjectsNearPoint(
           newState.objects.focusPoint,
