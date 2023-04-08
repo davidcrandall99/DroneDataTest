@@ -65,6 +65,7 @@ export class ObjectPolygon {
         return this.data;
     }
     setObjectsFromData(data = this.data) {
+        const state = this.state()
         this.objectData.features = []
         for (let i = 0; i in data; i++) {
             let object = data[i]
@@ -78,7 +79,7 @@ export class ObjectPolygon {
                     id: object.id,
                     height: object.height,
                     base: object.base,
-                    class: object.class ? object.class : 'unknown'
+                    class: object.class ? object.class : state.object.objectClasses.unknown
                 }
             }
             this.objectData.features.push(polygon)
@@ -145,7 +146,7 @@ export class ObjectPolygon {
                     "#0CF"
                 ])
             }
-            this.addToolTip(this.hoveredObject, this.hoveredObject.properties.class)
+            this.addToolTip(this.hoveredObject, JSON.parse(this.hoveredObject.properties.class).label)
 
         })
         this.map.on("mouseleave", this.objectLayer.id, (e) => {
@@ -205,12 +206,7 @@ export class ObjectPolygon {
             });
         }
         if(!html) {
-        html = `
-            <p>
-                <b>Object ID:</b> ${properties.id}<br>
-                <b>Altitude:</b> ${properties.height}
-            </p>
-        `;
+        html = properties.class.value;
         }
         if(point.geometry.coordinates.length == 2) {
             this.tooltip.setLngLat(point.geometry.coordinates).setHTML(html).addTo(this.map)

@@ -11,24 +11,33 @@ export const initialObjectState: any = {
   selectedObject: null,
   editingObjectClass: false,
   selectedObjectClass: null,
-  objectClasses: [
-    {
-      label: "Vehicle",
-      value: "vehicle",
+  objectClasses: {
+    friendly: {
+      label: "Friendly",
+      value: "friendly",
+      color: "#0F5"
     },
-    {
-      label: "Building",
+    building: {
+      label: "Building Of Interest",
       value: "building",
+      color: "#FCC"
     },
-    {
-      label: "Base",
-      value: "base",
+    vehicle: {
+      label: "Vehicle Of Interest",
+      value: "vehicle",
+      color: "#FFC"
     },
-    {
+    other: {
+      label: "Other",
+      value: "other",
+      color: "#ACC"
+    },
+    unknown: {
       label: "Unknown",
       value: "unknown",
-    },
-  ],
+      color: "#CCF"
+    }
+  },
 };
 
 // Actions
@@ -99,12 +108,10 @@ export const ObjectReducer = (state, action) => {
       newState.objectsShown = payload;
       return newState;
     case OBJECTS.SET_SELECTED_OBJECT_CLASS:
-      for (let i = 0; i in newState.objectClasses; i++) {
-        if (payload == newState.objectClasses[i].value) {
-          newState.selectedObjectClass = payload;
-          return newState;
-        }
-      }
+      const newClass = newState.objectClasses[payload]
+      console.log({payload, newClass})
+      newState.selectedObjectClass = newClass ? newClass : newState.objectClasses.unknown
+      return newState;
     case OBJECTS.EDITING_OBJECT_CLASS:
       if (!payload) {
         newState.selectedObjectClass = null;
@@ -139,7 +146,7 @@ export const ObjectReducer = (state, action) => {
           false
         );
       }
-      newState.selectedObject.properties.class = newState.selectedObjectClass;
+      newState.selectedObject.properties.class = JSON.stringify(newState.selectedObjectClass);
       newState.selectedObjectClass = null;
       newState.editingObjectClass = false;
       return newState;

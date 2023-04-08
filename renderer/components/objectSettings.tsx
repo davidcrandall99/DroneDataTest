@@ -15,16 +15,16 @@ export default function ObjectSettings() {
     })
   }
   const getObjectClass = () => {
-    
     if (state.object.selectedObjectClass) {
-      return state.object.selectedObjectClass
+      return state.object.selectedObjectClass.value
     } else if (state.object.selectedObject.properties.class) {
-      return state.object.selectedObject.properties.class
+      return JSON.parse(state.object.selectedObject.properties.class).value
     } else {
-      return 'unknown';
+      return state.object.objectClasses.unknown.value;
     }
   }
   const handleObjectChange = (e) => {
+    console.log('value', e.target.value)
     dispatch({
       type: rootActions.object.SET_SELECTED_OBJECT_CLASS,
       payload: e.target.value
@@ -39,6 +39,7 @@ export default function ObjectSettings() {
   const clearObjectSelection = () => {
     dispatch({ type: "SET_CLICKED_OBJECT", payload: null })
   }
+
   return (
     <>
       <p className="text-lg">Objects</p>
@@ -58,7 +59,7 @@ export default function ObjectSettings() {
             <b>Object Classification: </b>
             {!state.object.editingObjectClass &&
               <>
-                {state.object.selectedObject.properties.class ? state.object.selectedObject.properties.class : 'Unknown'}
+                {state.object.selectedObject.properties.class ? JSON.parse(state.object.selectedObject.properties.class).label : 'Unknown'}
                 - <button className='underline' onClick={() => { dispatch({ type: rootActions.object.EDITING_OBJECT_CLASS, payload: true }) }}>Set Class</button>
               </>
             }
@@ -66,9 +67,14 @@ export default function ObjectSettings() {
               state.object.editingObjectClass &&
               <>
                 <select className='text-black p-1 rounded' value={getObjectClass()} placeholder='Select Class' onChange={handleObjectChange}>
-                  {state.object.objectClasses.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
+
+                  {Object.keys(state.object.objectClasses).map((key) => {
+                    let option = state.object.objectClasses[key]
+                    return (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    )
+                  }
+                  )}
                 </select>
                 <button onClick={cancelClassification} className="underline mx-2">Cancel</button>
                 <button onClick={saveClassification} className="underline mx-2">Save</button>
