@@ -111,9 +111,6 @@ export class PathGroup {
       }
     });
     this.map.on("mouseenter", this.pathLayer.id, (e) => {
-      if (this.showingObjects) {
-        return;
-      }
       
       let feature = e.features[0];
       let coordinates = feature.geometry.coordinates.slice();
@@ -237,10 +234,14 @@ export class PathGroup {
     this.map.fitBounds(this.boundingBox, { padding, pitch });
   }
   removeLayer() {
+    this.clearSelections();
     this.map.removeLayer(this.pathLayer.id);
     if (this.extrusion) {
       this.removeExtrusion();
     }
+  }
+  setShowingObjects(val) {
+    this.showingObjects = val;
   }
   clearSelections() {
     this.dispatch({ type: rootActions.path.SET_CLICKED_PATH, payload: null });
