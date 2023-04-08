@@ -43,8 +43,8 @@ export default function ObjectSettings() {
     <>
       <p className="text-base">Objects</p>
       <hr className="my-2"></hr>
-      <button className="bg-slate-100 text-black py-1 px-2 m-2 ml-0 rounded inline-block" disabled={!state.object.objectData} onClick={showObjects}>Show All Objects</button>
-      <button className="bg-slate-100 text-black py-1 px-2 m-2 mr-0 rounded inline-block disabled:bg-slate-400" disabled={!state.object.objectsShown} onClick={hideObjects}>Hide Objects</button>
+      <button className="bg-slate-100 text-black py-1 px-2 m-1 ml-0 mb-3 rounded inline-block" disabled={!state.object.objectData} onClick={showObjects}>Show All Objects</button>
+      <button className="bg-slate-100 text-black py-1 px-2 m-1 mr-0 mb-3 rounded inline-block disabled:bg-slate-400" disabled={!state.object.objectsShown} onClick={hideObjects}>Hide Objects</button>
       {!state.object.objectsShown &&
         <p><em>No objects shown</em></p>
       }
@@ -64,7 +64,7 @@ export default function ObjectSettings() {
             }
             {
               state.object.editingObjectClass &&
-              <>
+              <><br></br>
                 <select className='text-black p-1 rounded' value={getObjectClass()} placeholder='Select Class' onChange={handleObjectChange}>
 
                   {Object.keys(state.object.objectClasses).map((key) => {
@@ -92,9 +92,9 @@ export default function ObjectSettings() {
           {Object.keys(state.object.objectClasses).map((key) => {
             let object = state.object.objectClasses[key]
             return (
-            <div key={key} className='block my-2'>
+            <div key={key} className='block my-4'>
               <div className='inline-block float-left mr-2 w-[20px] h-[20px]' style={{backgroundColor: object.color}}></div>
-              <p>{object.label}</p>
+              <p className='py-[2px]'>{object.label}</p>
             </div>
             )
           })}
