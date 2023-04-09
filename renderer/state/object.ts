@@ -155,7 +155,7 @@ export const ObjectReducer = (state, action) => {
       return newState;
     case OBJECTS.HIDE_OBJECT_LAYER:
       newState.objects.removeObjects();
-      newState.selectedObjects = null;
+      newState.selectedObject = null;
       newState.objectsShown = false;
       return newState;
     default:
