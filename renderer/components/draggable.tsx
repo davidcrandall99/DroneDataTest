@@ -21,7 +21,7 @@ export default function DraggableBox(props) {
                     {expanded ? '-' : '+'}
                 </button>
             </div>
-            <div className="p-4 overflow-y-scroll scrollbar-hidden max-h-screen scrollbar-hide" style={{
+            <div className="p-4 overflow-y-scroll max-h-[calc(100vh-40px)] scrollbar-hide" style={{
                 display: expanded ? 'block' : 'none'
             }}>
                 {props.children}
