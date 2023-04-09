@@ -104,6 +104,9 @@ export class ObjectPolygon {
         if(this.map.getLayer(this.objectLayer.id))
             this.map.removeLayer(this.objectLayer.id)
     }
+    clearFocusPoint() {
+        this.focusPoint = null;
+    }
     showObjectsNearPoint(point, zoomTo = true) {
         if(point) {
             this.focusPoint = point;

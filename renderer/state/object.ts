@@ -96,6 +96,7 @@ export const ObjectReducer = (state, action) => {
       newState.objects.setObjectsFromData()
       newState.objects.showLayer(true)
       newState.objects.dispatch({ type: rootActions.path.SHOWING_ALL_OBJECTS, payload: true })
+      newState.objects.clearFocusPoint();
       newState.objectsShown = true;
       return newState;
     case OBJECTS.SHOW_OBJECT_LAYER:
@@ -140,7 +141,6 @@ export const ObjectReducer = (state, action) => {
           currentData[i]["color"] = classObject.color;
         }
       }
-
       newState.objects.setData(currentData);
       newState.objects.setObjectsFromData()
       if (newState.objects.focusPoint) {
