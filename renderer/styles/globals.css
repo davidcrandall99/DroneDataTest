@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-900 text-white text-xs;
+    @apply bg-gray-900 text-white text-xs overflow-hidden;
   }
 }
 
@@ -30,4 +30,7 @@
 }
 .mapboxgl-popup-close-button {
   @apply top-0 right-2 text-xl;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

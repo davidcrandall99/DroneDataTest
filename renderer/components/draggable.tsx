@@ -5,7 +5,7 @@ export default function DraggableBox(props) {
     const [expanded, toggleExpanded] = useState(true)
     return (
         <Draggable bounds="parent">
-        <div  className="bg-black/[0.5] absolute z-10 right-[50px] cursor-move"
+        <div  className="bg-black/[0.5] absolute z-10 right-[50px] cursor-move max-h-screen"
             style={{
                 top: props.y ? props.y : '100px',
                 left: props.align == 'left' && props.x ? props.x : 'initial',
@@ -21,7 +21,7 @@ export default function DraggableBox(props) {
                     {expanded ? '-' : '+'}
                 </button>
             </div>
-            <div className="p-4" style={{
+            <div className="p-4 overflow-y-scroll scrollbar-hidden max-h-screen scrollbar-hide" style={{
                 display: expanded ? 'block' : 'none'
             }}>
                 {props.children}
