@@ -3,6 +3,7 @@ const store = new Store();
 import electron from "electron";
 let ipcRenderer = electron.ipcRenderer;
 const objectData = require("../mockData/objects.json");
+import { rootActions } from ".";
 
 export const initialObjectState: any = {
   objectData: null,
@@ -94,6 +95,7 @@ export const ObjectReducer = (state, action) => {
       newState.objects.setData(newState.objectData)
       newState.objects.setObjectsFromData()
       newState.objects.showLayer(true)
+      newState.objects.dispatch({ type: rootActions.path.SHOWING_ALL_OBJECTS, payload: true })
       newState.objectsShown = true;
       return newState;
     case OBJECTS.SHOW_OBJECT_LAYER:

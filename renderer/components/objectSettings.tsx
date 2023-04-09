@@ -39,7 +39,6 @@ export default function ObjectSettings() {
     dispatch({ type: "SET_CLICKED_OBJECT", payload: null })
   }
   const enableEdit = () => {
-    console.log(getObjectClass())
     dispatch({ type: rootActions.object.EDITING_OBJECT_CLASS, payload: true });
     dispatch({
       type: rootActions.object.SET_SELECTED_OBJECT_CLASS,

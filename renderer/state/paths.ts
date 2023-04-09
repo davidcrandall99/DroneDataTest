@@ -19,7 +19,8 @@ export const PATH = {
     ADD_DRONE_PATH: "ADD_DRONE_PATH",
     SET_CLICKED_PATH: "SET_CLICKED_PATH",
     CLEAR_LINE_SELECTIONS: "CLEAR_LINE_SELECTIONS",
-    SHOW_OBJECTS_NEAR_PATH: "SHOW_OBJECTS_NEAR_PATH"
+    SHOW_OBJECTS_NEAR_PATH: "SHOW_OBJECTS_NEAR_PATH",
+    SHOWING_ALL_OBJECTS: "SHOWING_ALL_OBJECTS"
 
 }
 
@@ -61,6 +62,9 @@ export const PathRecuder = (state, action) => {
     case PATH.CLEAR_LINE_SELECTIONS:
       newState.selectedPath = null;
       newState.paths.clearSelections();
+      return newState;
+    case PATH.SHOWING_ALL_OBJECTS:
+      newState.paths.setShowingObjects(!payload);
       return newState;
     case PATH.SHOW_OBJECTS_NEAR_PATH:
       newState.paths.showObjectsNearPoint();
