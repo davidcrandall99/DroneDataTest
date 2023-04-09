@@ -38,7 +38,14 @@ export default function ObjectSettings() {
   const clearObjectSelection = () => {
     dispatch({ type: "SET_CLICKED_OBJECT", payload: null })
   }
-
+  const enableEdit = () => {
+    console.log(getObjectClass())
+    dispatch({ type: rootActions.object.EDITING_OBJECT_CLASS, payload: true });
+    dispatch({
+      type: rootActions.object.SET_SELECTED_OBJECT_CLASS,
+      payload: getObjectClass()
+    })
+  }
   return (
     <>
       <p className="text-base">Objects</p>
@@ -59,7 +66,7 @@ export default function ObjectSettings() {
             {!state.object.editingObjectClass &&
               <>
                 {state.object.objectClasses[state.object.selectedObject.properties.class] ? state.object.objectClasses[state.object.selectedObject.properties.class].label : 'Unknown'}
-                - <button className='underline' onClick={() => { dispatch({ type: rootActions.object.EDITING_OBJECT_CLASS, payload: true }) }}>Set Class</button>
+                - <button className='underline' onClick={enableEdit}>Set Class</button>
               </>
             }
             {
