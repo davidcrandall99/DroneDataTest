@@ -12,31 +12,37 @@ export const initialObjectState: any = {
   selectedObject: null,
   editingObjectClass: false,
   selectedObjectClass: null,
+  visibleObjects: null,
   objectClasses: {
     friendly: {
       label: "Friendly",
       value: "friendly",
-      color: "green"
+      color: "green",
+      count: 0
     },
     building: {
       label: "Building Of Interest",
       value: "building",
-      color: "yellow"
+      color: "yellow",
+      count: 0
     },
     vehicle: {
       label: "Vehicle Of Interest",
       value: "vehicle",
-      color: "magenta"
+      color: "magenta",
+      count: 0
     },
     other: {
       label: "Other",
       value: "other",
-      color: "turquoise"
+      color: "turquoise",
+      count: 0
     },
     unknown: {
       label: "Unknown",
       value: "unknown",
-      color: "lightgrey"
+      color: "lightgrey",
+      count: 0
     }
   },
 };
@@ -54,6 +60,8 @@ export const OBJECTS = {
   EDITING_OBJECT_CLASS: "EDITING_OBJECT_CLASS",
   SAVE_OBJECT_DATA: "SAVE_OBJECT_DATA",
   HIDE_OBJECT_LAYER: "HIDE_OBJECT_LAYER",
+  SET_OBJECT_CLASSES: "SET_OBJECT_CLASSES",
+  SET_VISIBLE_OBJECTS: "SET_VISIBLE_OBJECTS"
 };
 
 
@@ -97,6 +105,7 @@ export const ObjectReducer = (state, action) => {
       newState.objects.showLayer(true)
       newState.objects.dispatch({ type: rootActions.path.SHOWING_ALL_OBJECTS, payload: true })
       newState.objects.clearFocusPoint();
+      newState.visibleObjects = newState.objectData
       newState.objectsShown = true;
       return newState;
     case OBJECTS.SHOW_OBJECT_LAYER:
@@ -106,6 +115,9 @@ export const ObjectReducer = (state, action) => {
         newState.objects.showLayer(true);
       }
       newState.objectsShown = true;
+      return newState;
+    case OBJECTS.SET_OBJECT_CLASSES:
+      newState.objectClasses = payload;
       return newState;
     case OBJECTS.SET_OBJECTS_SHOWN:
       newState.objectsShown = payload;
@@ -127,6 +139,15 @@ export const ObjectReducer = (state, action) => {
           newState.selectedObject.properties.id == newState.objectData[i].id
         ) {
           newState.objectData[i]["class"] = classObject.value;
+        }
+      }
+      if(newState.visibleObjects) {
+        for (let i in newState.visibleObjects) {
+          if (
+            newState.selectedObject.properties.id == newState.visibleObjects[i].id
+          ) {
+            newState.visibleObjects[i]["class"] = classObject.value;
+          }
         }
       }
       store.set("objects", newState.objectData);
@@ -152,6 +173,9 @@ export const ObjectReducer = (state, action) => {
       newState.selectedObject.properties.class = classObject.value
       newState.selectedObjectClass = null;
       newState.editingObjectClass = false;
+      return newState;
+    case OBJECTS.SET_VISIBLE_OBJECTS:
+      newState.visibleObjects = payload;
       return newState;
     case OBJECTS.HIDE_OBJECT_LAYER:
       newState.objects.removeObjects();

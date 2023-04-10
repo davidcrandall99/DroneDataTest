@@ -45,6 +45,24 @@ export default function ObjectSettings() {
       payload: getObjectClass()
     })
   }
+  useEffect(() => {
+    const classes = state.object.objectClasses;
+    for (const i in classes) {
+      classes[i].count = 0
+    }
+    if(state.object.visibleObjects) {
+      for(let i = 0; i in state.object.visibleObjects; i++) {
+        if(state.object.visibleObjects[i].class) {
+          classes[state.object.visibleObjects[i].class]['count'] ?
+          classes[state.object.visibleObjects[i].class]['count'] += 1
+          : classes[state.object.visibleObjects[i].class]['count'] = 1
+        } else {
+          classes.unknown.count ? classes.unknown.count += 1 : classes.unknown.count = 1
+        }
+      }
+    }
+    dispatch({ type: rootActions.object.SET_OBJECT_CLASSES, payload: classes })
+  }, [state.object.visibleObjects, state.object.objectData])
   return (
     <>
       <p className="text-base">Objects</p>
@@ -92,7 +110,7 @@ export default function ObjectSettings() {
         </>
       }
       {
-        state.object.objectsShown &&
+        state.object.objectsShown !== false &&
         <div className='mt-4'>
           <hr className='my-4'></hr>
           {Object.keys(state.object.objectClasses).map((key) => {
@@ -100,15 +118,15 @@ export default function ObjectSettings() {
             return (
             <div key={key} className='block my-4'>
               <div className='inline-block float-left mr-2 w-[20px] h-[20px]' style={{backgroundColor: object.color}}></div>
-              <p className='py-[2px]'>{object.label}</p>
+              <p className='py-[2px]'>{object.label} ({state.object.objectClasses[object.value].count})</p>
             </div>
             )
           })}
-          <div className='block my-2'>
+          {/* <div className='block my-2'>
             <div className='inline-block float-left mr-2 w-[20px] h-[20px] bg-orange-400'></div>
               <p>Selected</p>
-            </div>
-          </div>
+          </div> */}
+        </div>
       }
     </>
   )
