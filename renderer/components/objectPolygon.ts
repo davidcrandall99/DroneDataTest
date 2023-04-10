@@ -60,6 +60,7 @@ export class ObjectPolygon {
     }
     setData(data) {
         this.data = data
+        this.dispatch({ type: rootActions.object.SET_VISIBLE_OBJECTS, payload: data })
     }
     getCurrentData() {
         return this.data;
@@ -87,6 +88,7 @@ export class ObjectPolygon {
         }
         this.map.getSource(this.objectSource.name).setData(this.objectData)
         this.boundingBox = bbox(this.objectData)
+        this.dispatch({type: rootActions.object.SET_VISIBLE_OBJECTS, payload: data});
     }
     showLayer(fitBounds = false, pitch = 0, padding = 40) {
         if(!this.map.getLayer(this.objectLayer.id)) {
